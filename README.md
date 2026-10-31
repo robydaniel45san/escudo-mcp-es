@@ -4,10 +4,11 @@ Verificador de conectores MCP para agentes de IA. Mide si un ataque escrito en e
 
 | | |
 |---|---|
-| Equipo | Arquisoft |
+| Equipo | Arquisoft · Roby Daniel Duran Aguilar, Ronald Augusto Rodriguez Serrano, Ariane Somoza Rocha, Carla Loayza |
 | Evento | AI Security Build Sprint · Cursor Bolivia · 31/10/2026 · UTEPSA |
 | Track | 1 · AI Security & AI Safety |
-| Qué es | MVP local. No es un producto de producción. |
+| Repositorio | https://github.com/robydaniel45san/escudo-mcp-es |
+| Demo publicada | https://robydaniel45san.github.io/escudo-mcp-es/ |
 
 ## Cómo funciona
 
@@ -44,6 +45,15 @@ El 12 de 12 tiene sesgo: la misma persona escribió esas frases y las reglas. La
 
 En el set de desarrollo, con frases típicas, mcp-audit vio 7 de 7 ataques en inglés y 0 de 7 en español.
 
+Esos informes ya están en el repositorio. Se pueden leer sin volver a instalar los escáneres.
+
+| Qué se comprueba | Dónde está |
+|---|---|
+| Set de prueba, 12 de 12 | [`RESULTS.md`](RESULTS.md) y [`bench/resultados_prueba.csv`](bench/resultados_prueba.csv) |
+| 32 paráfrasis, 12 de 16 | [`bench/informe_ciego.md`](bench/informe_ciego.md) y [`bench/resultados_ciego.csv`](bench/resultados_ciego.csv) |
+| Por qué esas paráfrasis no son un examen ciego | [`bench/hallazgos_ciego.md`](bench/hallazgos_ciego.md) |
+| Laboratorio en vivo | [`VALIDACION.md`](VALIDACION.md): 11 de 11 en `python validar.py --rapida` el 31/10/2026 a las 15:22. Esa corrida no volvió a medir el banco con los escáneres. Los números del set de prueba siguen en `RESULTS.md`. |
+
 ## Cómo ejecutarlo
 
 Hace falta Python 3.10 o superior. El escudo en sí usa solo la biblioteca estándar. Los escáneres y el laboratorio MCP usan el entorno `.venv-scanners`.
@@ -55,20 +65,26 @@ python -m venv .venv-scanners
 
 En macOS o Linux el ejecutable está en `.venv-scanners/bin/python`.
 
-**Demo del MVP, un comando.** Levanta el conector de laboratorio en el puerto 9100, el verificador en el 9200 y la web en el 8770. Ctrl+C detiene lo que arrancó.
+**Demo, un comando.** Levanta el conector de laboratorio en el puerto 9100, el verificador en el 9200 y la web en el 8770. Ctrl+C detiene lo que arrancó.
 
 ```bash
 python laboratorio/iniciar_demo.py
 ```
 
-Abrir http://127.0.0.1:8770/laboratorio . Correr la prueba A y la prueba B. A espera que el canario llegue al conector. B espera cuarentena y que ningún secreto salga.
+Abrir http://127.0.0.1:8770/laboratorio . Hay cuatro pruebas. Cada una marca **Cumple** o **No cumple**.
+
+| Prueba | Qué espera |
+|--------|------------|
+| A · Sin escudo | El canario llega al conector |
+| B · Con escudo | Hay cuarentena y ningún secreto sale |
+| C · Rug pull | El cambio posterior se bloquea |
+| D · Esquema y respuesta | La respuesta envenenada se retiene |
 
 Otras páginas de la misma web:
 
 | Página | Para qué |
 |--------|----------|
 | `/` | Simulación: el agente se conecta a 3 conectores, con y sin escudo |
-| `/laboratorio` | Línea de tiempo de la demo |
 | `/conectores` | Verificar un conector por URL o pegando un `mcp.json` |
 | `/escanear` | Pasar una descripción por mcpscan, mcp-audit y el Escudo |
 
@@ -78,39 +94,22 @@ Otras páginas de la misma web:
 python -m unittest escudo.test_escudo escudo.test_informe -v
 python bench/bench.py --set prueba
 python bench/bench.py --set ciego --out bench/informe_ciego.md
-python validar.py
+python validar.py --rapida
 ```
 
-`bench.py --set prueba` reescribe `RESULTS.md`. Todo corre en local, con descripciones y claves ficticias. No se escanean servidores MCP de terceros.
-
-## Cómo comprobarlo
-
-Los números de la tabla ya están en el repositorio. Se pueden leer sin volver a instalar los escáneres.
-
-| Qué se comprueba | Dónde está |
-|---|---|
-| Set de prueba, 12 de 12 | [`RESULTS.md`](RESULTS.md) y [`bench/resultados_prueba.csv`](bench/resultados_prueba.csv) |
-| 32 paráfrasis, 12 de 16 | [`bench/informe_ciego.md`](bench/informe_ciego.md) y [`bench/resultados_ciego.csv`](bench/resultados_ciego.csv) |
-| Por qué esas paráfrasis no son un examen ciego | [`bench/hallazgos_ciego.md`](bench/hallazgos_ciego.md) |
-| Laboratorio: 12 de 12 invariantes | [`VALIDACION.md`](VALIDACION.md), definidas en [`docs/08-logica-principal.md`](docs/08-logica-principal.md) |
-
-El informe de paráfrasis dice la fecha y el SHA-256 del banco. Si alguien vuelve a correr `bench.py --set ciego`, el informe nuevo tiene que coincidir con ese archivo mientras no cambien las reglas ni los casos.
+`bench.py --set prueba` reescribe `RESULTS.md`. `validar.py` sin `--rapida` también vuelve a medir ese banco. Todo corre en local, con descripciones y claves ficticias. No se escanean servidores MCP de terceros.
 
 ## Demo publicada
 
 https://robydaniel45san.github.io/escudo-mcp-es/
 
-Es la misma pantalla que http://127.0.0.1:8770/laboratorio : las cuatro pruebas, el veredicto y la línea de tiempo. Los botones A, B, C y D reproducen las sesiones medidas `A-134840`, `B-134844`, `C-134850` y `D-134855`. En esa página no hay un conector abierto a internet. Para volver a correrlas en vivo, en esta máquina: `python laboratorio/iniciar_demo.py`. Cada push a `main` republica la página con `.github/workflows/pages.yml`.
+Es la misma pantalla del laboratorio. Los botones A, B, C y D reproducen las sesiones ya medidas `A-134840`, `B-134844`, `C-134850` y `D-134855`. No hay un conector abierto a internet. Para volver a correrlas en vivo hace falta el comando de arriba, en esta máquina. Cada push a `main` republica la página con `.github/workflows/pages.yml`.
 
 ## Qué no hace
 
 - No promete cubrir cualquier paráfrasis. El hueco en español está medido y listado.
 - No entrena un modelo. La página publicada reproduce el registro del laboratorio; el verificador en vivo sigue en esta máquina.
-- No lee archivos reales ni envía nada a internet. El «secreto» del laboratorio es el canario `CANARIO-ARQUISOFT-0001`.
-
-## Equipo
-
-Roby Daniel Duran Aguilar · Ronald Augusto Rodriguez Serrano · Ariane Somoza Rocha · Carla Loayza.
+- No lee archivos reales ni envía nada a internet. El secreto del laboratorio es el canario `CANARIO-ARQUISOFT-0001`.
 
 ## Licencias de lo que ya existía
 
