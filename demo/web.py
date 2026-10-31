@@ -8,6 +8,7 @@ Uso:  python demo/web.py            → http://127.0.0.1:8765
 """
 import csv
 import json
+import subprocess
 import sys
 import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -17,6 +18,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 sys.path.insert(0, str(RAIZ / "demo"))
 from escudo import analizar  # noqa: E402
+from escudo.informe import redactar  # noqa: E402
 from demo import herramientas, mcpaudit, mcpscan  # noqa: E402
 
 PUERTO = 8765
@@ -86,7 +88,17 @@ def escanear(descripcion):
         except Exception as e:
             audit = {"error": str(e)}
     esc = analizar(descripcion)
-    return {"mcpscan": scan, "mcpaudit": audit, "escudo": esc}
+    return {"mcpscan": scan, "mcpaudit": audit, "escudo": esc, "informe": redactar(descripcion, esc, scan, audit)}
+
+
+def simular(con_escudo):
+    """Corre la puerta de entrada MCP (demo/puerta.py) con el Python que tiene el SDK de MCP."""
+    py = RAIZ / ".venv-scanners" / ("Scripts" if sys.platform == "win32" else "bin") / ("python.exe" if sys.platform == "win32" else "python")
+    args = [str(py), str(RAIZ / "demo" / "puerta.py"), "--json"] + ([] if con_escudo else ["--sin-escudo"])
+    r = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, cwd=str(RAIZ))
+    if r.returncode != 0:
+        raise RuntimeError("La simulación falló. " + r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "La simulación falló.")
+    return json.loads(r.stdout)
 
 
 class Manejador(BaseHTTPRequestHandler):
@@ -99,8 +111,9 @@ class Manejador(BaseHTTPRequestHandler):
         self.wfile.write(cuerpo)
 
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            cuerpo = (WEB / "index.html").read_bytes()
+        paginas = {"/": "simulacion.html", "/simulacion": "simulacion.html", "/escanear": "index.html", "/index.html": "index.html"}
+        if self.path in paginas:
+            cuerpo = (WEB / paginas[self.path]).read_bytes()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(cuerpo)))
@@ -114,9 +127,15 @@ class Manejador(BaseHTTPRequestHandler):
             self._json({"error": "No existe esa ruta."}, 404)
 
     def do_POST(self):
+        largo = int(self.headers.get("Content-Length", 0))
+        if self.path == "/api/simular":
+            try:
+                pedido = json.loads(self.rfile.read(largo) or b"{}") if largo < 1000 else {}
+                return self._json(simular(bool(pedido.get("escudo", True))))
+            except Exception as e:
+                return self._json({"error": str(e)}, 500)
         if self.path != "/api/escanear":
             return self._json({"error": "No existe esa ruta."}, 404)
-        largo = int(self.headers.get("Content-Length", 0))
         if largo > MAX_CARACTERES * 4:
             return self._json({"error": f"La descripción supera los {MAX_CARACTERES} caracteres."}, 413)
         try:

@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "tienda": { "command": "python", "args": ["demo/conectores/tienda.py"] },
+    "clima": { "command": "python", "args": ["demo/conectores/clima.py"] },
+    "archivos": { "command": "python", "args": ["demo/conectores/archivos.py"] }
+  }
+}

@@ -20,10 +20,11 @@ Inicio del desarrollo: 31/10/2026, ~10:20 (después del commit de material previ
 | `escudo/test_escudo.py` | 13 tests (normalización, reglas y set de desarrollo completo) |
 | `bench/bench.py` | Genera un servidor MCP por caso, corre mcpscan y mcp-audit `--connect`, aplica el escudo y escribe `RESULTS.md` y un CSV |
 | `demo/` | Servidor MCP de juguete con una herramienta envenenada en spanglish y demo de línea de comandos |
+| `escudo/informe.py` | Informe del hallazgo: cita la frase de cada regla, junta las alertas de la misma descripción en un incidente y rechaza archivos, URLs o IPs que no están en el texto |
 
 ## Pruebas reproducibles
 ```bash
-python -m unittest escudo.test_escudo -v
+python -m unittest escudo.test_escudo escudo.test_informe -v
 python bench/bench.py --set prueba
 python demo/demo.py
 ```

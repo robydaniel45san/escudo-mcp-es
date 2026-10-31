@@ -79,11 +79,12 @@ python -m venv .venv-scanners
 
 **Flujo completo** (funciona desde el 31/10):
 ```bash
-# Tests del escudo
-python -m unittest escudo.test_escudo -v
+# Tests del escudo y del informe del hallazgo
+python -m unittest escudo.test_escudo escudo.test_informe -v
 # Medición sobre el set de prueba congelado → RESULTS.md + bench/resultados_prueba.csv
 python bench/bench.py --set prueba
 # Demo visual del pitch (web local, sin instalar nada más) → http://127.0.0.1:8765
+# Simulación: un agente se conecta por MCP a 3 conectores; el escudo filtra y todo queda en el log
 python demo/web.py
 # Demo de línea de comandos (respaldo si falla el navegador)
 python demo/demo.py

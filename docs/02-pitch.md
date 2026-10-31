@@ -31,11 +31,11 @@ El guion sigue los cinco bloques que pide la organización. Los números entre c
 > Después aplica reglas de intención en los dos idiomas: leer secretos, enviarlos a terceros, ocultar algo al usuario.
 > *(mostrar)* Veredicto: **envenenada**, con la frase culpable resaltada."
 
-**Cómo correr la demo:** `python demo/web.py` y abrir http://127.0.0.1:8765 antes de subir al escenario.
-1. Dejar elegido el ejemplo "Demo del pitch: calcular IVA (spanglish)" y activar **Modo presentación**.
-2. Presionar **Escanear**: mcpscan y mcp-audit dicen *Limpia*; el Escudo ES dice *Envenenada* y resalta las tres frases.
-3. Señalar los dos cuadros de abajo: lo que ve una persona y lo que analiza el escudo.
-4. En Evidencia, bajar a la tabla del set de prueba de la misma página.
+**Cómo correr la demo:** `python demo/web.py` y abrir http://127.0.0.1:8765 antes de subir al escenario. Activar **Modo presentación**.
+1. **Sin escudo:** elegir "Escudo ES desactivado" y presionar **Conectar el agente**. El log muestra la conexión MCP a los 3 conectores y 6 acciones dañinas simuladas.
+2. **Con escudo:** elegir "Escudo ES activado" y repetir. Las 2 herramientas envenenadas quedan en cuarentena; el agente solo ve las 4 limpias.
+3. Tocar `calcular_iva` en la tarjeta de conectores: aparece la descripción que llegó por MCP, la regla que la bloqueó y el informe para el analista. Cada afirmación cita la frase detectada y queda marcada como respaldada.
+4. Si sobra tiempo: pestaña **Escanear una descripción** para mostrar que mcpscan y mcp-audit dicen *Limpia*.
 
 **Plan B:** si la demo en vivo falla, se pasa al video de respaldo sin explicar el fallo más de una frase.
 
@@ -72,7 +72,7 @@ El guion sigue los cinco bloques que pide la organización. Los números entre c
 | ¿No es solo traducir reglas? | No. Normalizamos homoglifos y caracteres invisibles, que también engañan en inglés, y buscamos intenciones, no frases exactas. | Núcleo |
 | ¿Cómo evitan hacer trampa con sus propios datos? | Separamos el 30 % del banco antes de escribir las reglas y no lo miramos hasta la medición final. | Datos |
 | ¿Atacaron algún servidor real? | No. Todo es ficticio y local, según las reglas del evento. | Datos |
-| ¿Funciona con un LLM en vez de reglas? | Lo dejamos como opción. Las reglas son explicables, rápidas y corren sin clave; el juez LLM sería una segunda capa. | Núcleo |
+| ¿Funciona con un LLM en vez de reglas? | La detección la hacen las reglas: se mide y corre sin clave. El informe para el analista cita la frase que disparó cada regla. Un verificador rechaza archivos, URLs o IPs que no están en la descripción. | Núcleo |
 | ¿Quién lo usaría? | Cualquier equipo que conecte herramientas MCP a Cursor u otro agente, y los propios escáneres como regla adicional. | Evidencia |
 | ¿Por qué importa en Bolivia o Latinoamérica? | Los atacantes escriben en el idioma de sus víctimas. Si la defensa solo lee inglés, quedamos expuestos. | Evidencia |
 

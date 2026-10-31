@@ -14,6 +14,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 from escudo import analizar  # noqa: E402
+from escudo.informe import redactar  # noqa: E402
 
 SCRIPTS = RAIZ / ".venv-scanners" / ("Scripts" if sys.platform == "win32" else "bin")
 EXE = ".exe" if sys.platform == "win32" else ""
@@ -72,6 +73,14 @@ def mostrar_escudo(descripcion):
     print(f"  Escudo ES → {veredicto(res['envenenada'])}")
     for h in res["hallazgos"]:
         print(f"    · {h['regla']}: \"{h['frase']}\"")
+    informe = redactar(descripcion, res)
+    if informe["afirmaciones"]:
+        print(f"  {GRIS}Informe ({informe['respaldadas']}/{informe['total']} afirmaciones respaldadas):{FIN}")
+        for a in informe["afirmaciones"]:
+            marca = f"{VERDE}respaldada{FIN}" if a["respaldada"] else f"{ROJO}rechazada{FIN}"
+            print(f"    · [{marca}] {a['texto']}")
+        ajenos = ", ".join(informe["sin_citas"]["inventados"])
+        print(f"  {GRIS}Resumen sin citas, rechazado ({ajenos}):{FIN} {informe['sin_citas']['texto']}")
     return res
 
 

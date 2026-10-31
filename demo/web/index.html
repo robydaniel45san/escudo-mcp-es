@@ -77,12 +77,25 @@ tr:last-child td{border-bottom:0;font-weight:700}
 .num{font-family:var(--mono);font-size:12px;line-height:16px;text-align:right}
 .scroll{overflow-x:auto}
 .foot{font-size:12px;line-height:16px;color:var(--muted)}
+.informe{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:16px}
+.informe h3{margin:0;font-size:16px;line-height:24px}
+.inc{margin:0;font-weight:600}
+.af{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.af li{display:grid;gap:4px;padding:12px 16px;border-radius:12px;background:var(--ok-bg);border:1px solid var(--ok)}
+.af li .st{font-family:var(--mono);font-size:12px;line-height:16px;font-weight:600;color:var(--ok)}
+.af li p{margin:0}
+.af li.reject{background:var(--crit-bg);border-color:var(--crit)}
+.af li.reject .st{color:var(--crit)}
 @media (max-width:900px){.grid,.compare{grid-template-columns:minmax(0,1fr)}.verdicts{grid-template-columns:minmax(0,1fr)}h1{font-size:30px;line-height:36px}.page{padding:24px 16px 48px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <div class="page">
+  <nav style="display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface);border:1px solid var(--line);justify-self:end">
+    <a href="/" style="font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none">Simulación con conectores</a>
+    <a href="/escanear" aria-current="page" style="font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;border-radius:8px;background:var(--ink);color:var(--bg);text-decoration:none">Escanear una descripción</a>
+  </nav>
   <header>
     <div>
       <span class="eyebrow">Equipo Arquisoft · AI Security Build Sprint · Track 1</span>
@@ -113,6 +126,12 @@ tr:last-child td{border-bottom:0;font-weight:700}
       <div class="compare" id="compare" hidden>
         <div class="box"><span class="t">Lo que ve una persona</span><p id="orig"></p></div>
         <div class="box"><span class="t">Lo que analiza el Escudo ES</span><p id="norm"></p></div>
+      </div>
+      <div class="informe" id="informe" hidden>
+        <h3>Informe para el analista</h3>
+        <p class="inc" id="inc"></p>
+        <ul class="af" id="af"></ul>
+        <p class="hint" id="cmp"></p>
       </div>
     </div>
   </section>
@@ -153,6 +172,15 @@ function card(nombre,version,r,mio){
 }
 function pintar(r){
   $("#verdicts").innerHTML=card("mcpscan","0.21.0",r&&r.mcpscan)+card("mcp-audit","0.25.1",r&&r.mcpaudit)+card("Escudo ES","",r&&r.escudo,true);
+  const inf=r&&r.informe;
+  if(!inf){$("#informe").hidden=true;return}
+  $("#inc").textContent=inf.incidente.texto;
+  $("#af").innerHTML=(inf.afirmaciones||[]).map(a=>`<li class="${a.respaldada?"":"reject"}"><span class="st">${a.respaldada?"Respaldada":"Rechazada"} · ${esc(REGLA[a.regla]||a.regla)}</span><p>${esc(a.texto)}</p></li>`).join("");
+  const ajenos=(inf.sin_citas&&inf.sin_citas.inventados)||[];
+  $("#cmp").textContent=inf.total
+    ?`Resumen con citas: ${inf.respaldadas} de ${inf.total} afirmaciones usan solo la frase detectada. El resumen sin citas agrega datos que no están en la descripción (${ajenos.join(", ")}) y el verificador los rechaza.`
+    :"Sin frase que citar, el informe no redacta un motivo.";
+  $("#informe").hidden=false;
 }
 
 async function cargarEjemplos(){
@@ -173,7 +201,7 @@ $("#form").addEventListener("submit",async e=>{
   e.preventDefault();
   const d=$("#desc").value.trim();$("#err").hidden=true;
   if(!d){$("#err").textContent="Escribe o elige una descripción para escanear.";$("#err").hidden=false;return}
-  $("#go").disabled=true;$("#go").textContent="Escaneando…";pintar(null);
+  $("#go").disabled=true;$("#go").textContent="Escaneando…";$("#informe").hidden=true;$("#compare").hidden=true;pintar(null);
   try{
     const res=await fetch("/api/escanear",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({descripcion:d})});
     const r=await res.json();

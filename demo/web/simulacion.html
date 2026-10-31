@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escudo MCP · Simulación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Simulación de conectores MCP: tarjetas de conectores a la izquierda, log de la puerta a la derecha. */
+:root{
+  --bg:#F6F6F3; --surface:#FFFFFF; --sunken:#F0F0EC; --ink:#17171A; --muted:#5E5E66; --line:#E2E2DC;
+  --accent:#3B5BFF; --accent-ink:#FFFFFF;
+  --ok:#16803C; --ok-bg:#E4F4E8; --crit:#C0352B; --crit-bg:#FBE5E2; --warn:#9A5B00; --warn-bg:#FBF0DA;
+  --term:#17171A; --term-ink:#E8E8E3; --term-muted:#8C8C88;
+  --hero-a:#000000; --hero-b:#666666;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#131209; --surface:#1F1F1F; --sunken:#272727; --ink:#F2F2EE; --muted:#A3A3A0; --line:#313131;
+  --accent:#8FA2FF; --accent-ink:#131209;
+  --ok:#5BD08A; --ok-bg:#17301F; --crit:#F27A6E; --crit-bg:#3B1C19; --warn:#F0B45A; --warn-bg:#3A2B12;
+  --term:#000000; --term-ink:#E8E8E3; --term-muted:#8C8C88;
+  --hero-a:#FFFFFF; --hero-b:#9B9B9B; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+body.pres{font-size:18px}
+.page{max-width:1200px;margin:0 auto;padding:24px 24px 64px;display:grid;gap:24px}
+nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.tabs a{font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.eyebrow{font-family:var(--mono);font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{margin:8px 0 0;max-width:680px;font-size:36px;line-height:40px;font-weight:700;letter-spacing:-.02em;text-wrap:balance;
+   background:linear-gradient(90deg,var(--hero-a),var(--hero-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:8px 0 0;max-width:680px;color:var(--muted);text-wrap:pretty}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;padding:4px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.seg button{font:inherit;font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;border-radius:8px;border:0;background:transparent;color:var(--muted);cursor:pointer;transition:background-color .3s var(--ease),color .3s var(--ease)}
+.seg button[aria-pressed="true"].on{background:var(--ok-bg);color:var(--ok)}
+.seg button[aria-pressed="true"].off{background:var(--crit-bg);color:var(--crit)}
+.btn{font:inherit;font-size:16px;line-height:24px;font-weight:600;padding:12px 24px;border-radius:12px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;transition:transform .3s var(--ease),opacity .3s var(--ease)}
+.btn:hover{transform:translateY(-1px)} .btn:active{transform:scale(.98)} .btn:disabled{opacity:.5;cursor:wait;transform:none}
+.btn.ghost{background:transparent;color:var(--accent);padding:8px 12px;border-radius:8px;font-size:14px;line-height:20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 24px;display:grid;gap:4px}
+.kpi .l{font-size:14px;line-height:20px;color:var(--muted)}
+.kpi .n{font-size:36px;line-height:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi.good .n{color:var(--ok)} .kpi.bad .n{color:var(--crit)} .kpi.mid .n{color:var(--warn)}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:16px;min-width:0}
+.card h2{margin:0;font-size:20px;line-height:28px;font-weight:700}
+.hint{margin:0;font-size:14px;line-height:20px;color:var(--muted)}
+.conns{display:grid;gap:12px}
+.conn{border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;gap:8px;transition:border-color .3s var(--ease)}
+.conn.live{border-color:var(--accent)}
+.conn .hd{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.conn .hd b{font-family:var(--mono);font-size:14px;line-height:20px}
+.state{font-family:var(--mono);font-size:12px;line-height:16px;color:var(--muted)}
+.tool{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--sunken);font-family:var(--mono);font-size:14px;line-height:20px}
+.tool:focus-visible{outline:2px solid var(--accent)}
+.tool.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.pill{font-family:var(--font);font-size:12px;line-height:16px;font-weight:600;padding:4px 8px;border-radius:999px;white-space:nowrap}
+.p-wait{background:var(--surface);color:var(--muted)} .p-ok{background:var(--ok-bg);color:var(--ok)}
+.p-block{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--crit-bg);color:var(--crit)}
+.detail{border-radius:12px;background:var(--sunken);padding:16px;display:grid;gap:8px}
+.detail p{margin:0;font-family:var(--mono);font-size:14px;line-height:20px;overflow-wrap:anywhere}
+.detail .informe{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--line)}
+.detail .informe b{font-family:var(--font);font-size:14px;line-height:20px}
+.detail .claim{font-family:var(--font);font-size:14px;line-height:20px;margin:0;padding:8px 12px;border-radius:8px;background:var(--ok-bg);color:var(--ok)}
+.detail .hint{font-family:var(--font)}
+mark{background:var(--crit-bg);color:var(--crit);font-weight:600;border-radius:4px;padding:0 2px}
+mark.hid{background:var(--warn-bg);color:var(--warn)}
+.term{background:var(--term);color:var(--term-ink);border-radius:12px;padding:16px;font-family:var(--mono);font-size:12px;line-height:16px;min-height:420px;max-height:560px;overflow:auto;display:grid;align-content:start;gap:4px}
+body.pres .term{font-size:14px;line-height:20px}
+.ln{display:grid;grid-template-columns:96px 72px minmax(0,1fr);gap:8px;animation:in .4s var(--ease) both}
+.ln .t{color:var(--term-muted)}
+.ln.INFO .lv{color:var(--term-muted)} .ln.OK .lv{color:#5BD08A} .ln.BLOQUEO .lv{color:#F0B45A} .ln.ALERTA .lv{color:#F27A6E}
+.ln.ALERTA .m{color:#F7A49B}
+.ln .m{overflow-wrap:anywhere}
+.term .empty{color:var(--term-muted)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cmp div{border-radius:12px;padding:12px 16px;background:var(--sunken);font-size:14px;line-height:20px}
+.cmp b{display:block;font-size:16px;line-height:24px}
+.foot{font-size:12px;line-height:16px;color:var(--muted);margin:0}
+code{font-family:var(--mono);font-size:.9em}
+@media (max-width:900px){.grid,.kpis,.cmp{grid-template-columns:minmax(0,1fr)}h1{font-size:30px;line-height:36px}.page{padding:16px 16px 48px}.ln{grid-template-columns:80px minmax(0,1fr)}.ln .lv{grid-column:2}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <span class="eyebrow">Equipo Arquisoft · Escudo MCP en español</span>
+    <div class="tabs"><a href="/" aria-current="page">Simulación con conectores</a><a href="/escanear">Escanear una descripción</a></div>
+  </nav>
+  <header>
+    <h1>Un agente se conecta a 3 conectores MCP.<br>¿Qué herramientas le dejamos ver?</h1>
+    <p class="sub">Como Cursor al arrancar: lee <code>conectores.json</code>, se conecta por MCP de verdad a cada conector y recibe sus herramientas. El Escudo ES revisa cada descripción antes de que el agente la lea.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Escudo ES">
+      <button id="on" class="on" aria-pressed="true">Escudo ES activado</button>
+      <button id="off" class="off" aria-pressed="false">Escudo ES desactivado</button>
+    </div>
+    <button class="btn" id="go">Conectar el agente</button>
+    <button class="btn ghost" id="pres" aria-pressed="false">Modo presentación</button>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi" id="k1"><span class="l">Herramientas que ve el agente</span><span class="n">—</span></div>
+    <div class="kpi" id="k2"><span class="l">En cuarentena</span><span class="n">—</span></div>
+    <div class="kpi" id="k3"><span class="l">Acciones dañinas (simuladas)</span><span class="n">—</span></div>
+  </div>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Conectores</h2>
+      <div class="conns" id="conns"></div>
+      <div class="detail" id="detail" hidden></div>
+    </div>
+    <div class="card">
+      <h2>Log de la puerta de entrada</h2>
+      <div class="term" id="term" role="log" aria-live="polite"><span class="empty">$ esperando conexión… presiona «Conectar el agente»</span></div>
+      <p class="foot" id="logfile">Cada corrida se guarda en <code>demo/logs/escudo-*.jsonl</code>.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Con escudo frente a sin escudo</h2>
+    <div class="cmp"><div id="c-off"><b>Sin escudo</b>Todavía no se corrió.</div><div id="c-on"><b>Con escudo</b>Todavía no se corrió.</div></div>
+    <p class="foot">Las "acciones dañinas" son simuladas: muestran lo que haría un agente que obedece la descripción. Nunca se lee ni se envía ningún archivo. Las conexiones MCP y los conectores sí son reales y corren en esta computadora.</p>
+  </section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const INVIS=/[​‌‍⁠﻿]/g, CONF=/[аеорсухіјѕАВЕКМНОРСТХІЈЅ]/g;
+const REGLA={ignorar_instrucciones:"Ignorar instrucciones",instrucciones_anuladas:"Anular instrucciones",ocultar_al_usuario:"Ocultar al usuario",
+  leer_o_enviar_secretos:"Leer o enviar secretos",enviar_contrasenas:"Enviar contraseñas",exfiltrar_datos_usuario:"Sacar datos del usuario",
+  orden_previa:"Orden antes de usar",etiqueta_de_sistema:"Etiqueta de sistema falsa",texto_disfrazado:"Texto disfrazado"};
+const CONECTORES=["tienda","clima","archivos"];
+let escudo=true, herr={}, meta={}, resumen={};
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function setEscudo(v){escudo=v;$("#on").setAttribute("aria-pressed",v);$("#off").setAttribute("aria-pressed",!v)}
+$("#on").onclick=()=>setEscudo(true);$("#off").onclick=()=>setEscudo(false);
+$("#pres").onclick=e=>{const on=document.body.classList.toggle("pres");e.target.setAttribute("aria-pressed",on)};
+
+function pintarConectores(){
+  $("#conns").innerHTML=CONECTORES.map(c=>{
+    const hs=Object.values(herr).filter(h=>h.conector===c);
+    const st=hs.length?`${hs.length} herramientas`:(meta[c]||"sin conectar");
+    return `<div class="conn ${meta.live===c?"live":""}"><div class="hd"><b>${c}</b><span class="state">${esc(st)}</span></div>`+
+      hs.map(h=>`<button class="tool" data-k="${esc(h.k)}">${esc(h.herramienta)}<span class="pill ${h.cls}">${h.estado}</span></button>`).join("")+`</div>`}).join("");
+}
+function detalle(k){
+  const h=herr[k];if(!h)return;
+  document.querySelectorAll(".tool").forEach(b=>b.classList.toggle("sel",b.dataset.k===k));
+  let d=esc(h.descripcion).replace(INVIS,'<mark class="hid">⟦invisible⟧</mark>').replace(CONF,c=>`<mark class="hid">${c}</mark>`);
+  const reglas=(h.reglas||[]).map(r=>REGLA[r]||r).join(" · ");
+  const inf=h.informe;
+  const ficha=inf&&inf.total?`<div class="informe"><b>Informe para el analista</b><p class="claim" style="background:transparent;color:var(--ink);padding:0">${esc(inf.incidente.texto)}</p>`+
+    inf.afirmaciones.map(a=>`<p class="claim">${a.respaldada?"Respaldada":"Rechazada"} · ${esc(a.texto)}</p>`).join("")+
+    `<p class="hint">Resumen con citas: ${inf.respaldadas} de ${inf.total}. El resumen sin citas agrega ${(inf.sin_citas.inventados||[]).map(esc).join(", ")} y el verificador lo rechaza.</p></div>`:"";
+  $("#detail").innerHTML=`<span class="state">${esc(h.conector)}.${esc(h.herramienta)} · descripción recibida por MCP</span><p>${d}</p>`+
+    (reglas?`<span class="pill p-bad" style="justify-self:start">${esc(reglas)}</span>`:`<span class="pill p-ok" style="justify-self:start">Sin órdenes escondidas</span>`)+ficha;
+  $("#detail").hidden=false;
+}
+$("#conns").addEventListener("click",e=>{const b=e.target.closest(".tool");if(b)detalle(b.dataset.k)});
+
+function linea(ev){
+  const el=document.createElement("div");el.className="ln "+ev.nivel;
+  el.innerHTML=`<span class="t">${esc(ev.t)}</span><span class="lv">${esc(ev.nivel)}</span><span class="m">${esc(ev.mensaje)}</span>`;
+  $("#term").appendChild(el);$("#term").scrollTop=$("#term").scrollHeight;
+}
+function aplicar(ev){
+  const k=ev.conector&&ev.herramienta?`${ev.conector}.${ev.herramienta}`:null;
+  if(ev.tipo==="conectando"){meta.live=ev.conector;meta[ev.conector]="conectando…"}
+  if(ev.tipo==="conectado"){meta[ev.conector]="conectado"}
+  if(ev.tipo==="error"){meta[ev.conector]="error de conexión"}
+  if(ev.tipo==="permitida")herr[k]={...ev,k,estado:"Visible",cls:"p-ok"};
+  if(ev.tipo==="bloqueada")herr[k]={...ev,k,estado:"Cuarentena",cls:"p-block"};
+  if(ev.tipo==="sin_revisar")herr[k]={...ev,k,estado:ev.reglas.length?"Visible · envenenada":"Visible",cls:ev.reglas.length?"p-bad":"p-ok"};
+  if(ev.tipo==="dano"&&herr[k]){herr[k].estado="Obedecida";herr[k].cls="p-bad"}
+  if(ev.tipo==="resumen"){meta.live=null;resumen=ev}
+  pintarConectores();
+}
+function kpis(r){
+  const set=(id,n,cls)=>{const k=$(id);k.className="kpi "+cls;k.querySelector(".n").textContent=n};
+  set("#k1",r.expuestas.length,"");set("#k2",r.bloqueadas.length,r.bloqueadas.length?"mid":"");set("#k3",r.danos.length,r.danos.length?"bad":"good");
+  const box=r.escudo?$("#c-on"):$("#c-off");
+  box.innerHTML=`<b>${r.escudo?"Con escudo":"Sin escudo"}</b>El agente ve ${r.expuestas.length} herramientas · ${r.bloqueadas.length} en cuarentena · <strong>${r.danos.length} acciones dañinas simuladas</strong>`;
+}
+
+$("#go").onclick=async()=>{
+  const b=$("#go");b.disabled=true;b.textContent="Conectando…";herr={};meta={};pintarConectores();$("#detail").hidden=true;
+  $("#term").innerHTML="";["#k1","#k2","#k3"].forEach(id=>{$(id).className="kpi";$(id).querySelector(".n").textContent="…"});
+  try{
+    const res=await fetch("/api/simular",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({escudo})});
+    const d=await res.json();if(!res.ok)throw new Error(d.error||"La simulación falló.");
+    for(const ev of d.eventos){linea(ev);aplicar(ev);if(!reduce)await new Promise(r=>setTimeout(r,ev.tipo==="conectando"?450:220))}
+    kpis(resumen);$("#logfile").innerHTML=`Log de esta corrida: <code>${esc(d.log)}</code>`;
+    const primera=Object.values(herr).find(h=>h.reglas&&h.reglas.length);if(primera)detalle(primera.k);
+  }catch(e){$("#term").innerHTML=`<span class="empty" style="color:#F27A6E">Error: ${esc(e.message)} Revisa que el servidor de la demo siga corriendo.</span>`}
+  finally{b.disabled=false;b.textContent="Conectar el agente"}
+};
+pintarConectores();
+</script>
+</body>
+</html>
