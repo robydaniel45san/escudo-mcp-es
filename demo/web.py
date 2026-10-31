@@ -11,6 +11,9 @@ import json
 import subprocess
 import sys
 import tempfile
+import urllib.parse
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -20,6 +23,9 @@ sys.path.insert(0, str(RAIZ / "demo"))
 from escudo import analizar  # noqa: E402
 from escudo.informe import redactar  # noqa: E402
 from demo import herramientas, mcpaudit, mcpscan  # noqa: E402
+
+sys.path.insert(0, str(RAIZ / "laboratorio"))
+import eventos  # noqa: E402
 
 PUERTO = 8765
 WEB = RAIZ / "demo" / "web"
@@ -91,6 +97,50 @@ def escanear(descripcion):
     return {"mcpscan": scan, "mcpaudit": audit, "escudo": esc, "informe": redactar(descripcion, esc, scan, audit)}
 
 
+PY_LAB = RAIZ / ".venv-scanners" / ("Scripts" if sys.platform == "win32" else "bin") / ("python.exe" if sys.platform == "win32" else "python")
+
+
+def lab_estado(sesion):
+    """Eventos estandarizados del laboratorio, sesiones disponibles y puntos clave de la sesión elegida."""
+    todos = eventos.leer()
+    sesiones = []
+    for e in todos:
+        if e["sesion"] not in sesiones:
+            sesiones.append(e["sesion"])
+    actual = sesion or eventos.sesion_actual()["sesion"]
+    if actual not in sesiones:
+        sesiones.append(actual)  # una sesión recién creada todavía no tiene eventos
+    lista = [e for e in todos if e["sesion"] == actual]
+    quiebre, defensa = eventos.puntos_clave(lista)
+    servicios = {}
+    for nombre, url in (("conector", "http://127.0.0.1:9100/mcp"), ("escudo", "http://127.0.0.1:9200/mcp")):
+        try:
+            urllib.request.urlopen(url, timeout=1)
+            servicios[nombre] = True
+        except urllib.error.HTTPError:
+            servicios[nombre] = True  # responde, aunque rechace un GET sin cabeceras MCP
+        except Exception:
+            servicios[nombre] = False
+    return {"sesion": actual, "sesiones": sesiones[::-1], "eventos": lista, "servicios": servicios,
+            "quiebre": quiebre and quiebre["span_id"], "defensa": defensa and defensa["span_id"]}
+
+
+def lab_escenario(clave):
+    r = subprocess.run([str(PY_LAB), str(RAIZ / "laboratorio" / "prueba_automatica.py"), "--escenario", clave],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, cwd=str(RAIZ))
+    if r.returncode != 0:
+        raise RuntimeError("El escenario falló. Revisa que el conector (:9100) y el escudo (:9200) estén corriendo.")
+    return {"ok": True, "sesion": eventos.sesion_actual()["sesion"]}
+
+
+def lab_reiniciar():
+    for url in ("http://127.0.0.1:9100/reiniciar", "http://127.0.0.1:9200/reiniciar"):
+        try:
+            urllib.request.urlopen(urllib.request.Request(url, method="POST"), timeout=3)
+        except Exception:
+            pass
+
+
 def simular(con_escudo):
     """Corre la puerta de entrada MCP (demo/puerta.py) con el Python que tiene el SDK de MCP."""
     py = RAIZ / ".venv-scanners" / ("Scripts" if sys.platform == "win32" else "bin") / ("python.exe" if sys.platform == "win32" else "python")
@@ -111,7 +161,12 @@ class Manejador(BaseHTTPRequestHandler):
         self.wfile.write(cuerpo)
 
     def do_GET(self):
-        paginas = {"/": "simulacion.html", "/simulacion": "simulacion.html", "/escanear": "index.html", "/index.html": "index.html"}
+        ruta = urllib.parse.urlparse(self.path)
+        if ruta.path == "/api/lab/estado":
+            sesion = urllib.parse.parse_qs(ruta.query).get("sesion", [None])[0]
+            return self._json(lab_estado(sesion))
+        paginas = {"/": "simulacion.html", "/simulacion": "simulacion.html", "/escanear": "index.html", "/index.html": "index.html",
+                   "/laboratorio": "laboratorio.html"}
         if self.path in paginas:
             cuerpo = (WEB / paginas[self.path]).read_bytes()
             self.send_response(200)
@@ -128,6 +183,21 @@ class Manejador(BaseHTTPRequestHandler):
 
     def do_POST(self):
         largo = int(self.headers.get("Content-Length", 0))
+        if self.path.startswith("/api/lab/"):
+            try:
+                pedido = json.loads(self.rfile.read(largo) or b"{}") if largo < 1000 else {}
+                if self.path == "/api/lab/escenario" and pedido.get("escenario") in ("A", "B", "C"):
+                    return self._json(lab_escenario(pedido["escenario"]))
+                if self.path == "/api/lab/sesion":
+                    nombre = "".join(c for c in str(pedido.get("nombre", "Cursor")) if c.isalnum() or c in "-_")[:40] or "Cursor"
+                    lab_reiniciar()
+                    return self._json(eventos.nueva_sesion(f"{nombre}-{__import__('datetime').datetime.now():%H%M%S}"))
+                if self.path == "/api/lab/reiniciar":
+                    lab_reiniciar()
+                    return self._json({"ok": True})
+                return self._json({"error": "Pedido no válido."}, 400)
+            except Exception as e:
+                return self._json({"error": str(e)}, 500)
         if self.path == "/api/simular":
             try:
                 pedido = json.loads(self.rfile.read(largo) or b"{}") if largo < 1000 else {}
@@ -153,5 +223,6 @@ class Manejador(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print(f"Demo del Escudo MCP en español → http://127.0.0.1:{PUERTO}  (Ctrl+C para salir)")
-    ThreadingHTTPServer(("127.0.0.1", PUERTO), Manejador).serve_forever()
+    puerto = int(sys.argv[sys.argv.index("--puerto") + 1]) if "--puerto" in sys.argv else PUERTO
+    print(f"Demo del Escudo MCP en español → http://127.0.0.1:{puerto}  (Ctrl+C para salir)")
+    ThreadingHTTPServer(("127.0.0.1", puerto), Manejador).serve_forever()

@@ -31,6 +31,7 @@ Sigue los documentos en orden:
 
 | Paso | Documento | Para qué sirve |
 |------|-----------|----------------|
+| ★ | [`docs/06-explicacion-simple.md`](docs/06-explicacion-simple.md) | **Empieza aquí:** todo el proyecto en palabras simples, qué pide el Track 1 y qué falta para una prueba real |
 | 0 | [`docs/00-por-que-y-cumplimiento.md`](docs/00-por-que-y-cumplimiento.md) | Por qué elegimos esta propuesta y qué cumplimos de la página oficial, sección por sección |
 | 1 | [`docs/01-plan-paso-a-paso.md`](docs/01-plan-paso-a-paso.md) | Qué se hace, en qué fase, quién lo hace y cuándo está terminado |
 | 2 | [`docs/02-pitch.md`](docs/02-pitch.md) | Guion de 3 minutos, palabra por palabra, y preguntas probables del jurado |
@@ -56,14 +57,24 @@ escudo-mcp-es/
 └── RESULTS.md             ← tabla final de resultados y limitaciones
 ```
 
-## Equipo Arquisoft · roles
+## Laboratorio con Cursor real
+Servidor MCP malicioso (:9100) + **Escudo verificador** (:9200) + Cursor como agente. Ver [`laboratorio/README.md`](laboratorio/README.md).
+```bash
+.venv-scanners/Scripts/python laboratorio/prueba_automatica.py   # 3 escenarios sin Cursor
+```
 
-| Rol | Responsable | Entrega principal |
-|-----|-------------|-------------------|
-| Núcleo técnico | _(nombre)_ | `escudo/`: normalización y reglas bilingües |
-| Datos y pruebas | _(nombre)_ | `dataset/` y la línea base con escáneres existentes |
-| Interfaz y demo | _(nombre)_ | `demo/`: servidor MCP de juguete y pantalla de la demo |
-| Evidencia y pitch | _(nombre)_ | `bench/`, `RESULTS.md`, README y el pitch |
+## Equipo Arquisoft
+
+| Integrante | Rol |
+|------------|-----|
+| Roby Daniel Duran Aguilar | _(por asignar)_ |
+| Ronald Augusto Rodriguez Serrano | _(por asignar)_ |
+| Ariane Somoza Rocha | _(por asignar)_ |
+| _(cuarto integrante, pendiente)_ | _(por asignar)_ |
+
+Roles del plan: **Núcleo técnico** (`escudo/`), **Datos y pruebas** (`dataset/`, línea base), **Interfaz y demo** (`demo/`), **Evidencia y pitch** (`bench/`, `RESULTS.md`, pitch).
+
+> Las bases piden equipos de cuatro integrantes. Si el equipo queda de tres, hay que confirmarlo con la organización.
 
 ## Cómo ejecutar (se completa durante el sprint)
 
