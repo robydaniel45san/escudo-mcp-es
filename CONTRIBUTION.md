@@ -3,7 +3,7 @@
 ## Qué existía antes del desarrollo
 | Elemento | Origen | Uso en el proyecto |
 |----------|--------|--------------------|
-| Documentación (`docs/`, README, plantillas) | Equipo, commit `67e3faa` | Plan, pitch y trazabilidad |
+| Documentación (`docs/`, README, plantillas) | Equipo, commit `4f98b59` | Plan, pitch y trazabilidad |
 | Idea de las reglas del escudo | Equipo: un prototipo de demostración en la web de estudio Misión Sprint (laboratorio T1-07, 13 casos) | Punto de partida conceptual; el código de `escudo/` se reescribió desde cero en Python |
 | mcpscan-cli 0.21.0 y mcp-audit 0.25.1 | Terceros, ver `THIRD_PARTY.md` | Línea base, sin modificar |
 | SDK de MCP en Python 1.30.0 | Terceros | Servidores de juguete |
