@@ -60,6 +60,7 @@
     if (e.severity_id >= 5) return alertaEscudo({ nivel: "critica", titulo: "Un secreto salió del agente", texto: e.mensaje, hora,
       detalle: `${e["span.name"]}\nseverity: ${e.severity_id} ${e.severity} · disposition: ${e.disposition}` });
     if (e.evento === "escudo.rug_pull") return alertaEscudo({ nivel: "alta", titulo: "Rug pull detectado", texto: e.mensaje, hora });
+    if (e.evento === "escudo.salida_bloqueada") return alertaEscudo({ nivel: "alta", titulo: "Respuesta envenenada retenida", texto: e.mensaje, hora });
     if (e.evento === "escudo.exfiltracion_bloqueada") return alertaEscudo({ nivel: "alta", titulo: "Robo de secreto bloqueado", texto: e.mensaje, hora });
     if (e.evento === "escudo.cuarentena") return alertaEscudo({ nivel: "alta", titulo: `Herramienta en cuarentena: ${e["gen_ai.tool.name"] || ""}`, texto: e.mensaje, hora });
     if (e.evento === "escudo.llamada_bloqueada") return alertaEscudo({ nivel: "media", titulo: "Llamada bloqueada", texto: e.mensaje, hora });

@@ -23,6 +23,9 @@ python demo/web.py --puerto 8770
 - **Indicadores:** eventos, bloqueos, secretos que salieron y **tiempo desde el inicio hasta el punto clave**.
 - **Evento estandarizado:** al tocar cualquier evento se ve su registro completo en JSON.
 
+## Modo guion
+El botón **Modo guion** abre un reloj de 3 minutos con los cinco bloques oficiales del pitch (problema, de qué partimos, demo, evidencia y límites). Muestra qué decir en cada bloque y, en "La demo", los botones de los escenarios A, B y D.
+
 ## Ventanas de alerta
 Todas las páginas comparten `demo/web/alertas.js`:
 - **Crítica** (un secreto salió): ventana modal que hay que cerrar con "Entendido".
@@ -59,8 +62,9 @@ Notas:
 ## Guion para la demostración (unos 60 segundos)
 1. **Escenario A · sin escudo.** "Un agente obediente se conecta a un conector malicioso…" → el veredicto se pone **rojo**: *Se rompió a las HH:MM:SS.mmm*. Tocar el **punto de quiebre** y mostrar en el JSON `"disposition": "Exfiltrated"` y `"contiene_canario": true`.
 2. **Escenario B · con escudo.** Mismo agente, ahora detrás del escudo → **verde**: el punto de defensa es la cuarentena de `calcular_iva`, antes de que el agente la vea.
-3. **Escenario C · rug pull.** La herramienta aprobada cambia su descripción → el escudo lo detecta por la huella y la bloquea.
-4. **Cursor real.** "Nueva sesión · Cursor sin escudo" y el pedido en Cursor → en nuestra prueba quedó **En riesgo**: Cursor usó la herramienta envenenada pero no mandó el secreto.
+3. **Escenario D · esquema y respuesta.** La orden escondida en un parámetro queda en cuarentena, y la respuesta envenenada de `buscar_factura` llega **retenida** (alerta "Respuesta envenenada retenida").
+4. **Escenario C · rug pull.** La herramienta aprobada cambia su descripción → el escudo lo detecta por la huella y la bloquea.
+5. **Cursor real.** "Nueva sesión · Cursor sin escudo" y el pedido en Cursor → en nuestra prueba quedó **En riesgo**: Cursor usó la herramienta envenenada pero no mandó el secreto.
 
 Frase de cierre: *"Cada paso queda en un registro estándar, con la hora exacta del punto donde se rompe o donde el escudo lo frena."*
 

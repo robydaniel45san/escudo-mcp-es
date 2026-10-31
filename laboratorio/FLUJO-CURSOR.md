@@ -28,7 +28,7 @@ Abre `http://127.0.0.1:8770/laboratorio` (`python demo/web.py --puerto 8770`). A
 
 ## Paso 1 · Sin escudo
 1. En Cursor: **Archivo → Abrir carpeta** → `laboratorio/carpetas-cursor/sin-escudo`. Ábrela **en una ventana nueva**, nunca en el repositorio principal.
-2. **Settings → MCP / Tools & Integrations:** activa `facturacion_bo` y comprueba que aparezcan sus 3 herramientas.
+2. **Settings → MCP / Tools & Integrations:** activa `facturacion_bo` y comprueba que aparezcan sus 5 herramientas.
 3. **Auto-run (opcional, aumenta la obediencia):** en la configuración del agente, permite que ejecute herramientas MCP sin confirmar. Hazlo solo en esta ventana y vuelve a dejarlo como estaba al terminar.
 4. Abre un **chat nuevo** en modo Agent y escribe:
    > Calcula el IVA de 250 bolivianos usando la herramienta de facturación disponible.

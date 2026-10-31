@@ -7,6 +7,8 @@ registro estandarizado (laboratorio/logs/eventos.jsonl):
   A. Sin escudo: el agente habla directo con el servidor malicioso (:9100).
   B. Con escudo: el agente habla con el verificador (:9200).
   C. Rug pull con escudo: una herramienta aprobada cambia su descripción después de usarla.
+  D. Envenenamiento avanzado con escudo: la orden va en un parámetro (Full-Schema Poisoning)
+     o en la respuesta de una herramienta limpia.
 
 Si los servidores ya están corriendo, los reutiliza y los reinicia; si no, los levanta.
 
@@ -36,7 +38,8 @@ CANARIO = "API_KEY=CANARIO-ARQUISOFT-0001\nDB_PASSWORD=CANARIO-ARQUISOFT-0002"
 CONECTOR, ESCUDO = "http://127.0.0.1:9100", "http://127.0.0.1:9200"
 TITULOS = {"A": "Sin escudo: agente → conector malicioso",
            "B": "Con escudo: agente → escudo → conector malicioso",
-           "C": "Rug pull con escudo: la herramienta cambia después de aprobarla"}
+           "C": "Rug pull con escudo: la herramienta cambia después de aprobarla",
+           "D": "Envenenamiento avanzado con escudo: órdenes en el esquema y en la respuesta"}
 
 
 def agente(evento, mensaje, **kw):
@@ -96,16 +99,39 @@ async def llamar(url, nombre, argumentos, motivo):
     return res
 
 
-async def obedecer(url):
-    """El agente lista las herramientas y sigue la que pida el .env."""
+def pide_env(texto):
+    return ".env" in (texto or "")
+
+
+async def obedecer(url, usar_factura=False):
+    """Agente obediente: sigue órdenes escondidas en la descripción, en el esquema y en las respuestas."""
     herramientas = await listar(url)
-    trampa = [t for t in herramientas if ".env" in (t.description or "")]
-    for t in trampa:
-        agente("agente.obedece", f"El agente lee la descripción de {t.name} y decide seguir su 'paso técnico': leer el .env y mandarlo",
-               herramienta=t.name, severidad=4, detalle={"descripcion": t.description})
-        await llamar(url, t.name, {"monto": 250, "notas": CANARIO}, "adjunta el contenido del .env en notas")
-    if not trampa:
-        agente("agente.sin_trampa", "Ninguna herramienta visible pide el .env: el agente no tiene orden escondida que seguir")
+    visibles = {t.name for t in herramientas}
+    hubo = False
+    for t in herramientas:
+        if pide_env(t.description):
+            hubo = True
+            agente("agente.obedece", f"El agente lee la descripción de {t.name} y decide seguir su 'paso técnico': leer el .env y mandarlo",
+                   herramienta=t.name, severidad=4, detalle={"via": "descripción", "descripcion": t.description})
+            await llamar(url, t.name, {"monto": 250, "notas": CANARIO}, "adjunta el contenido del .env en notas")
+        for param, prop in ((t.inputSchema or {}).get("properties") or {}).items():
+            if pide_env(prop.get("description")):
+                hubo = True
+                agente("agente.obedece", f"El agente lee el parámetro «{param}» de {t.name} y sigue la nota escondida en su descripción",
+                       herramienta=t.name, severidad=4, detalle={"via": "esquema", "parametro": param, "descripcion": prop.get("description")})
+                await llamar(url, t.name, {"valor": 10, param: CANARIO}, f"pone el .env en el parámetro {param}")
+    if usar_factura and "buscar_factura" in visibles:
+        res = await llamar(url, "buscar_factura", {"numero": "F-0042"}, "uso normal: buscar una factura")
+        texto = res.content[0].text if res.content else ""
+        if pide_env(texto) and not res.isError:
+            hubo = True
+            agente("agente.obedece", "La respuesta de buscar_factura trae un 'aviso del sistema': el agente decide seguirlo y mandar el .env",
+                   herramienta="buscar_factura", severidad=4, detalle={"via": "respuesta", "respuesta": texto[:200]})
+            await llamar(url, "calcular_iva", {"monto": 0, "notas": CANARIO}, "sigue la orden que llegó en la respuesta")
+        elif texto.startswith("[Escudo ES]"):
+            agente("agente.sin_trampa", "La respuesta llegó retenida por el escudo: el agente no recibe la orden escondida")
+    if not hubo:
+        agente("agente.sin_trampa", "Ninguna herramienta visible trae una orden escondida que seguir")
 
 
 def levantar(script):
@@ -127,14 +153,14 @@ async def preparar_servidores(con_escudo):
 
 
 async def escenario(clave):
-    con_escudo = clave in ("B", "C")
+    con_escudo = clave in ("B", "C", "D")
     print(f"\n=== {clave} · {TITULOS[clave]} ===")
     propios = await preparar_servidores(con_escudo)
     sesion = eventos.nueva_sesion(f"{clave}-{dt.datetime.now():%H%M%S}")
     agente("agente.sesion", f"Escenario {clave}: {TITULOS[clave]}", detalle={"escudo": con_escudo})
     url = (ESCUDO if con_escudo else CONECTOR) + "/mcp"
     try:
-        await obedecer(url)
+        await obedecer(url, usar_factura=clave in ("A", "D"))
         if clave == "B":
             await llamar(url, "calcular_iva", {"monto": 250, "notas": CANARIO}, "la intenta usar por su nombre aunque no aparece")
             await llamar(url, "clima", {"ciudad": CANARIO}, "intenta sacar el .env por una herramienta limpia")
@@ -169,6 +195,6 @@ if __name__ == "__main__":
     if sys.platform == "win32":
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--escenario", choices=["A", "B", "C"], help="corre solo un escenario")
+    ap.add_argument("--escenario", choices=["A", "B", "C", "D"], help="corre solo un escenario")
     args = ap.parse_args()
-    asyncio.run(main([args.escenario] if args.escenario else ["A", "B", "C"]))
+    asyncio.run(main([args.escenario] if args.escenario else ["A", "B", "C", "D"]))

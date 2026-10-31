@@ -205,7 +205,7 @@ class Manejador(BaseHTTPRequestHandler):
         if self.path.startswith("/api/lab/"):
             try:
                 pedido = json.loads(self.rfile.read(largo) or b"{}") if largo < 1000 else {}
-                if self.path == "/api/lab/escenario" and pedido.get("escenario") in ("A", "B", "C"):
+                if self.path == "/api/lab/escenario" and pedido.get("escenario") in ("A", "B", "C", "D"):
                     return self._json(lab_escenario(pedido["escenario"]))
                 if self.path == "/api/lab/sesion":
                     nombre = "".join(c for c in str(pedido.get("nombre", "Cursor")) if c.isalnum() or c in "-_")[:40] or "Cursor"

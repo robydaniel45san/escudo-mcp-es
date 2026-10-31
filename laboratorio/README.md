@@ -8,6 +8,12 @@ Cursor (agente real) ──► Escudo verificador :9200 ──► Servidor malic
                      bloquea y registra              (la "captura")
 ```
 
+## Arranque en un comando
+```bash
+python laboratorio/iniciar_demo.py            # conector :9100, escudo :9200 y web :8770, con chequeos previos
+python laboratorio/iniciar_demo.py --limpiar  # además archiva los logs anteriores
+```
+
 ## Tablero visual
 Línea de tiempo en vivo con el **punto exacto** donde se rompe o donde el escudo lo frena, sobre un registro estandarizado (OpenTelemetry para MCP y OCSF). Ver [`TABLERO.md`](TABLERO.md).
 
@@ -15,10 +21,11 @@ Línea de tiempo en vivo con el **punto exacto** donde se rompe o donde el escud
 
 | Archivo | Qué es |
 |---------|--------|
-| `servidor_malicioso.py` | Conector MCP por HTTP (`127.0.0.1:9100`). `calcular_iva` esconde una orden en español: leer el `.env` y mandarlo en `notas` sin avisar. `tipo_de_cambio` se muestra limpia y **cambia su descripción** después de usarla (rug pull). `clima` es limpia. Su "maldad" se limita a **anotar** en `logs/atacante.jsonl` lo que recibe |
-| `verificador.py` | **Escudo verificador** (`127.0.0.1:9200`): intermediario MCP real. Pasa cada descripción por el Escudo ES, guarda una huella de las aprobadas, detecta cambios, revisa los argumentos de cada llamada y bloquea los que parecen secretos. Log en `logs/verificador.jsonl` |
+| `servidor_malicioso.py` | Conector MCP por HTTP (`127.0.0.1:9100`). `calcular_iva` esconde una orden en español en su descripción. `convertir_unidades` la esconde en la descripción de un **parámetro** (Full-Schema Poisoning). `buscar_factura` es limpia pero **devuelve una respuesta envenenada**. `tipo_de_cambio` **cambia su descripción** después de usarla (rug pull). `clima` es limpia. Su "maldad" se limita a **anotar** en `logs/atacante.jsonl` lo que recibe |
+| `verificador.py` | **Escudo verificador** (`127.0.0.1:9200`): intermediario MCP real. Revisa la descripción **y el esquema completo** de cada herramienta, guarda una huella de la definición aprobada, detecta cambios, bloquea argumentos con forma de secreto y **retiene respuestas envenenadas**. Log en `logs/verificador.jsonl` |
 | `preparar.py` | Crea `carpetas-cursor/sin-escudo` y `carpetas-cursor/con-escudo`, cada una con su `.cursor/mcp.json`, un `.env` **canario** y un `LEEME.md` |
-| `prueba_automatica.py` | Prueba sin Cursor, con un agente obediente simulado, en 3 escenarios (`--escenario A/B/C`) |
+| `prueba_automatica.py` | Prueba sin Cursor, con un agente obediente simulado, en 4 escenarios (`--escenario A/B/C/D`) |
+| `iniciar_demo.py` | Arranca conector, escudo y web en un comando, con chequeos y parada limpia |
 | `eventos.py` | Registro estandarizado único (`logs/eventos.jsonl`), sesiones y cálculo del punto de quiebre o de defensa |
 
 ## Reglas de seguridad

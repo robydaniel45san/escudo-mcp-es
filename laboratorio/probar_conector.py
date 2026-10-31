@@ -23,6 +23,7 @@ sys.path.insert(0, str(AQUI.parent))
 sys.path.insert(0, str(AQUI))
 from escudo import analizar  # noqa: E402
 import eventos  # noqa: E402
+from verificador import textos_del_esquema  # noqa: E402
 
 
 async def leer(url):
@@ -48,13 +49,21 @@ def probar(url):
                       detalle={"herramientas": [t.name for t in herramientas]})
     informe = []
     for t in herramientas:
-        res = analizar(t.description or "")
-        item = {"herramienta": t.name, "descripcion": t.description or "", "huella": hashlib.sha256((t.description or "").encode()).hexdigest()[:16],
-                "envenenada": res["envenenada"], "hallazgos": res["hallazgos"], "normalizado": res["normalizado"]}
+        # Se revisa la descripción y el esquema completo de parámetros (Full-Schema Poisoning).
+        res, donde = analizar(t.description or ""), "descripción"
+        if not res["envenenada"]:
+            for lugar, texto in textos_del_esquema(t.inputSchema or {}):
+                r = analizar(texto)
+                if r["envenenada"]:
+                    res, donde = r, lugar
+                    break
+        definicion = json.dumps({"descripcion": t.description or "", "esquema": t.inputSchema or {}}, sort_keys=True, ensure_ascii=False)
+        item = {"herramienta": t.name, "descripcion": t.description or "", "huella": hashlib.sha256(definicion.encode()).hexdigest()[:16],
+                "envenenada": res["envenenada"], "hallazgos": res["hallazgos"], "normalizado": res["normalizado"], "ubicacion": donde}
         informe.append(item)
         if res["envenenada"]:
             reglas = [h["regla"] for h in res["hallazgos"]]
-            eventos.registrar("escudo", "escudo.cuarentena", f"{t.name} · ENVENENADA · {', '.join(reglas)} · «{res['hallazgos'][0]['frase']}»",
+            eventos.registrar("escudo", "escudo.cuarentena", f"{t.name} · ENVENENADA ({donde}) · {', '.join(reglas)} · «{res['hallazgos'][0]['frase']}»",
                               metodo="tools/list", herramienta=t.name, severidad=4, accion="Denied", disposicion="Quarantined",
                               detalle={"reglas": reglas, "frases": [h["frase"] for h in res["hallazgos"]]})
         else:

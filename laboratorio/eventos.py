@@ -93,9 +93,11 @@ def leer(sesion=None):
 
 
 def puntos_clave(eventos):
-    """El quiebre es el primer evento crítico. La defensa es el primer bloqueo del escudo,
-    salvo que haya detectado un rug pull: ese ataque es el que define la sesión."""
+    """El quiebre es el primer evento crítico. La defensa es el primer bloqueo del escudo, salvo que
+    haya frenado un ataque más específico: un rug pull o una respuesta envenenada definen la sesión."""
     quiebre = next((e for e in eventos if e.get("severity_id", 0) >= 5), None)
     bloqueos = [e for e in eventos if e.get("componente") == "escudo" and e.get("action") == "Denied"]
-    defensa = next((e for e in bloqueos if e.get("evento") == "escudo.rug_pull"), bloqueos[0] if bloqueos else None)
+    defensa = next((e for e in bloqueos if e.get("evento") == "escudo.rug_pull"), None) \
+        or next((e for e in bloqueos if e.get("evento") == "escudo.salida_bloqueada"), None) \
+        or (bloqueos[0] if bloqueos else None)
     return quiebre, defensa
