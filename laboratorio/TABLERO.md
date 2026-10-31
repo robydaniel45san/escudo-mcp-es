@@ -23,8 +23,15 @@ python demo/web.py --puerto 8770
 - **Indicadores:** eventos, bloqueos, secretos que salieron y **tiempo desde el inicio hasta el punto clave**.
 - **Evento estandarizado:** al tocar cualquier evento se ve su registro completo en JSON.
 
-## Modo guion
-El botón **Modo guion** abre un reloj de 3 minutos con los cinco bloques oficiales del pitch (problema, de qué partimos, demo, evidencia y límites). Muestra qué decir en cada bloque y, en "La demo", los botones de los escenarios A, B y D.
+## Pruebas
+Cada botón corre un escenario y marca **Cumple** o **No cumple** según lo que esa prueba espera.
+
+| Prueba | Esperado |
+|--------|----------|
+| A · Sin escudo | El canario llega al conector |
+| B · Con escudo | Hay cuarentena y ningún secreto sale |
+| C · Rug pull | El cambio posterior se bloquea y ningún secreto sale |
+| D · Esquema y respuesta | La respuesta envenenada se retiene y ningún secreto sale |
 
 ## Ventanas de alerta
 Todas las páginas comparten `demo/web/alertas.js`:

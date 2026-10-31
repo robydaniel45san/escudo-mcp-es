@@ -61,7 +61,7 @@ En macOS o Linux el ejecutable está en `.venv-scanners/bin/python`.
 python laboratorio/iniciar_demo.py
 ```
 
-Abrir http://127.0.0.1:8770/laboratorio . Activar el modo guion. Comparar «Escudo ES desactivado» y «Escudo ES activado», y tocar `calcular_iva`.
+Abrir http://127.0.0.1:8770/laboratorio . Correr la prueba A y la prueba B. A espera que el canario llegue al conector. B espera cuarentena y que ningún secreto salga.
 
 Otras páginas de la misma web:
 
@@ -100,7 +100,7 @@ El informe de paráfrasis dice la fecha y el SHA-256 del banco. Si alguien vuelv
 
 https://robydaniel45san.github.io/escudo-mcp-es/
 
-Es la misma pantalla que http://127.0.0.1:8770/laboratorio : línea de tiempo, veredicto y modo guion. Los botones A, B, C y D reproducen las sesiones medidas `A-134840`, `B-134844`, `C-134850` y `D-134855`. En esa página no hay un conector abierto a internet. Para volver a correrlas en vivo, en esta máquina: `python laboratorio/iniciar_demo.py`. Cada push a `main` republica la página con `.github/workflows/pages.yml`.
+Es la misma pantalla que http://127.0.0.1:8770/laboratorio : las cuatro pruebas, el veredicto y la línea de tiempo. Los botones A, B, C y D reproducen las sesiones medidas `A-134840`, `B-134844`, `C-134850` y `D-134855`. En esa página no hay un conector abierto a internet. Para volver a correrlas en vivo, en esta máquina: `python laboratorio/iniciar_demo.py`. Cada push a `main` republica la página con `.github/workflows/pages.yml`.
 
 ## Qué no hace
 
