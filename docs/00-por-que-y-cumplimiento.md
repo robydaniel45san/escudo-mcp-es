@@ -90,7 +90,7 @@ Evaluamos las 13 propuestas con las preguntas que más pesan en la rúbrica: ¿y
 ### 2.6 Reglas (bases)
 | Regla oficial | Cómo la cumplimos | Estado |
 |---------------|-------------------|--------|
-| Cuatro integrantes, un solo proyecto | Un proyecto, cuatro roles | ⏳ nombres |
+| Cuatro integrantes, un solo proyecto | Roby Daniel Duran Aguilar, Ronald Augusto Rodriguez Serrano, Ariane Somoza Rocha y Carla Loayza | ✅ |
 | Un track, declarado al entregar | Track 1 | ⏳ al entregar |
 | Se puede usar Cursor y otros asistentes; el equipo entiende y prueba | Cada componente tiene un responsable y tests | ⏳ Fase 2 |
 | Reutilizar código de terceros con autoría y licencia | `THIRD_PARTY.md` | ✅ plantilla · ⏳ Fase 4 |

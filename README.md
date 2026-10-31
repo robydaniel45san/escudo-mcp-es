@@ -83,6 +83,19 @@ python validar.py
 
 `bench.py --set prueba` reescribe `RESULTS.md`. Todo corre en local, con descripciones y claves ficticias. No se escanean servidores MCP de terceros.
 
+## Cómo comprobarlo
+
+Los números de la tabla ya están en el repositorio. Se pueden leer sin volver a instalar los escáneres.
+
+| Qué se comprueba | Dónde está |
+|---|---|
+| Set de prueba, 12 de 12 | [`RESULTS.md`](RESULTS.md) y [`bench/resultados_prueba.csv`](bench/resultados_prueba.csv) |
+| 32 paráfrasis, 12 de 16 | [`bench/informe_ciego.md`](bench/informe_ciego.md) y [`bench/resultados_ciego.csv`](bench/resultados_ciego.csv) |
+| Por qué esas paráfrasis no son un examen ciego | [`bench/hallazgos_ciego.md`](bench/hallazgos_ciego.md) |
+| Laboratorio: 12 de 12 invariantes | [`VALIDACION.md`](VALIDACION.md), definidas en [`docs/08-logica-principal.md`](docs/08-logica-principal.md) |
+
+El informe de paráfrasis dice la fecha y el SHA-256 del banco. Si alguien vuelve a correr `bench.py --set ciego`, el informe nuevo tiene que coincidir con ese archivo mientras no cambien las reglas ni los casos.
+
 ## Demo publicada
 
 https://robydaniel45san.github.io/escudo-mcp-es/
@@ -97,7 +110,7 @@ Esa página carga `escudo/__init__.py`, `normalizar.py` y `reglas.py` y ejecuta 
 
 ## Equipo
 
-Roby Daniel Duran Aguilar · Ronald Augusto Rodriguez Serrano · Ariane Somoza Rocha. Falta confirmar el cuarto integrante con la organización.
+Roby Daniel Duran Aguilar · Ronald Augusto Rodriguez Serrano · Ariane Somoza Rocha · Carla Loayza.
 
 ## Licencias de lo que ya existía
 

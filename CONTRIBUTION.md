@@ -21,6 +21,7 @@ Inicio del desarrollo: 31/10/2026, ~10:20 (después del commit de material previ
 | `bench/bench.py` | Genera un servidor MCP por caso, corre mcpscan y mcp-audit `--connect`, aplica el escudo y escribe `RESULTS.md` y un CSV |
 | `demo/` | Servidor MCP de juguete con una herramienta envenenada en spanglish y demo de línea de comandos |
 | `escudo/informe.py` | Informe del hallazgo: cita la frase de cada regla, junta las alertas de la misma descripción en un incidente y rechaza archivos, URLs o IPs que no están en el texto |
+| `dataset/ciego/` | 32 paráfrasis (16 ataques, 16 limpias). No es un set ciego: quien las redactó ya había leído las reglas. Medidas en `bench/informe_ciego.md` |
 
 ## Pruebas reproducibles
 ```bash
@@ -30,7 +31,9 @@ python demo/demo.py
 ```
 
 ## Resultado principal (set de prueba)
-Ver [`RESULTS.md`](RESULTS.md). Los escáneres existentes detectaron 5 de 12 ataques; con el Escudo ES se detectaron 12 de 12, sin falsas alarmas nuevas. **Ese 12 de 12 tiene un sesgo declarado:** la misma persona escribió las frases de prueba y las reglas. Falta validarlo con un set ciego.
+Ver [`RESULTS.md`](RESULTS.md). Los escáneres existentes detectaron 5 de 12 ataques; con el Escudo ES se detectaron 12 de 12, sin falsas alarmas nuevas. **Ese 12 de 12 tiene un sesgo declarado:** la misma persona escribió las frases de prueba y las reglas. Falta un set escrito por alguien que no vio las reglas.
+
+Sobre 32 paráfrasis redactadas después de leer las reglas (no es un set ciego): mcpscan 3 de 16, mcp-audit 4 de 16, Escudo ES 12 de 16, con 0 falsas alarmas del Escudo. Informe: [`bench/informe_ciego.md`](bench/informe_ciego.md). La autoría y las cuatro que se le fueron están en [`bench/hallazgos_ciego.md`](bench/hallazgos_ciego.md).
 
 ## Origen de los datos
 Todos los casos son ficticios y los generó el equipo. Ver `DATASET.md`.
