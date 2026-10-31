@@ -31,6 +31,12 @@ El guion sigue los cinco bloques que pide la organización. Los números entre c
 > Después aplica reglas de intención en los dos idiomas: leer secretos, enviarlos a terceros, ocultar algo al usuario.
 > *(mostrar)* Veredicto: **envenenada**, con la frase culpable resaltada."
 
+**Cómo correr la demo:** `python demo/web.py` y abrir http://127.0.0.1:8765 antes de subir al escenario.
+1. Dejar elegido el ejemplo "Demo del pitch: calcular IVA (spanglish)" y activar **Modo presentación**.
+2. Presionar **Escanear**: mcpscan y mcp-audit dicen *Limpia*; el Escudo ES dice *Envenenada* y resalta las tres frases.
+3. Señalar los dos cuadros de abajo: lo que ve una persona y lo que analiza el escudo.
+4. En Evidencia, bajar a la tabla del set de prueba de la misma página.
+
 **Plan B:** si la demo en vivo falla, se pasa al video de respaldo sin explicar el fallo más de una frase.
 
 ### 2:10–2:40 · Evidencia
