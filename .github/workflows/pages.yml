@@ -22,12 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Armar el sitio con el código del escudo
-        run: |
-          mkdir -p _site/escudo
-          cp sitio/index.html _site/index.html
-          cp escudo/__init__.py escudo/normalizar.py escudo/reglas.py _site/escudo/
-          touch _site/.nojekyll
+      - name: Armar la misma pantalla del laboratorio
+        run: python sitio/armar.py _site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

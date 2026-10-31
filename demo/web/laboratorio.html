@@ -228,7 +228,22 @@ function avisar(d){
   nuevos.forEach(e=>vistos.add(e.span_id));
   if($("#vivo").checked) nuevos.forEach(e=>window.alertaDesdeEvento&&alertaDesdeEvento(e));
 }
+function claveGrabado(){
+  const g=window.LAB_GRABADO, s=$("#sesion").value;
+  return s&&g.sesiones[s]?s:g.inicial;
+}
+async function cargarGrabado(){
+  const d=window.LAB_GRABADO.sesiones[claveGrabado()];
+  const nueva=JSON.stringify([d.sesion,d.eventos.length,"grabado"]);
+  if(nueva!==firma){
+    if(estado&&estado.sesion!==d.sesion)vistos=null;
+    firma=nueva;estado=d;pintar(d);avisar(d);
+  }
+  $("#svc").innerHTML=`<span class="dot on"></span>registro medido · conector :9100 · <span class="dot on"></span>escudo :9200`;
+  $("#err").hidden=true;
+}
 async function cargar(){
+  if(window.LAB_GRABADO)return cargarGrabado();
   try{
     const vivo=$("#vivo").checked, s=$("#sesion").value;
     const url="/api/lab/estado"+(!vivo&&s?"?sesion="+encodeURIComponent(s):"");
@@ -243,6 +258,23 @@ $("#vivo").addEventListener("change",()=>{firma="";cargar()});
 $("#pres").addEventListener("click",e=>{const on=document.body.classList.toggle("pres");e.target.setAttribute("aria-pressed",on)});
 
 async function accion(url,cuerpo,boton,texto){
+  if(window.LAB_GRABADO&&cuerpo.escenario){
+    const nombre=window.LAB_GRABADO.porEscenario[cuerpo.escenario];
+    if(!nombre)return;
+    $("#vivo").checked=false;elegido=null;firma="";
+    const sel=$("#sesion");
+    if(![...sel.options].some(o=>o.value===nombre)){
+      const o=document.createElement("option");o.value=nombre;o.textContent=nombre;sel.append(o);
+    }
+    sel.value=nombre;
+    await cargarGrabado();
+    return;
+  }
+  if(window.LAB_GRABADO&&cuerpo.nombre){
+    $("#err").textContent="La sesión de Cursor se crea en la demo local, con el laboratorio encendido en esta máquina.";
+    $("#err").hidden=false;
+    return;
+  }
   const original=boton.textContent;boton.disabled=true;boton.textContent=texto;$("#err").hidden=true;
   try{const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(cuerpo)});
     const d=await r.json();if(!r.ok)throw new Error(d.error||"No se pudo completar.");

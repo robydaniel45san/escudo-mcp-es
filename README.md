@@ -100,12 +100,12 @@ El informe de paráfrasis dice la fecha y el SHA-256 del banco. Si alguien vuelv
 
 https://robydaniel45san.github.io/escudo-mcp-es/
 
-Esa página carga `escudo/__init__.py`, `normalizar.py` y `reglas.py` y ejecuta `analizar()` en el navegador con Pyodide. Sirve para pegar una descripción y ver la cuarentena. El verificador de los puertos 9200 y 9100 no está en internet: sigue siendo el comando de arriba, en esta máquina. Cada push a `main` republica la página con el workflow `.github/workflows/pages.yml`.
+Es la misma pantalla que http://127.0.0.1:8770/laboratorio : línea de tiempo, veredicto y modo guion. Los botones A, B, C y D reproducen las sesiones medidas `A-134840`, `B-134844`, `C-134850` y `D-134855`. En esa página no hay un conector abierto a internet. Para volver a correrlas en vivo, en esta máquina: `python laboratorio/iniciar_demo.py`. Cada push a `main` republica la página con `.github/workflows/pages.yml`.
 
 ## Qué no hace
 
 - No promete cubrir cualquier paráfrasis. El hueco en español está medido y listado.
-- No entrena un modelo. La página publicada solo analiza texto; no se pone delante de un conector ajeno.
+- No entrena un modelo. La página publicada reproduce el registro del laboratorio; el verificador en vivo sigue en esta máquina.
 - No lee archivos reales ni envía nada a internet. El «secreto» del laboratorio es el canario `CANARIO-ARQUISOFT-0001`.
 
 ## Equipo
