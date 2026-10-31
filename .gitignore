@@ -1,0 +1,14 @@
+# Secretos y entornos: nunca al repositorio (reglas del sprint)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.venv/
+venv/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+.DS_Store
+Thumbs.db
+.venv-*/

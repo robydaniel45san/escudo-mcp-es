@@ -1,0 +1,4 @@
+# Escáneres de la línea base (terceros). Ver THIRD_PARTY.md.
+# Instalar en un entorno aislado:  python -m venv .venv-scanners
+mcp-audit-scanner[mcp]==0.25.1
+mcpscan-cli==0.21.0
