@@ -43,9 +43,8 @@ sys.path.insert(0, str(AQUI))
 import eventos  # noqa: E402
 
 LOG = AQUI / "logs" / "verificador.jsonl"
-# Argumentos con forma de secreto: el canario del laboratorio, claves típicas y llaves privadas.
-SECRETO = re.compile(r"CANARIO-[A-Z0-9-]+|(api[_-]?key|password|secret|token|contrasena)\s*[=:]\s*\S+|"
-                     r"sk-[A-Za-z0-9]{16,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----", re.I)
+# Argumentos con forma de secreto: la regla vive en escudo/secretos.py (la comparte la web).
+from escudo.secretos import SECRETO  # noqa: E402
 
 COLOR = {"OK": "\033[32m", "BLOQUEO": "\033[33m", "ALERTA": "\033[31m", "INFO": "\033[90m"}
 

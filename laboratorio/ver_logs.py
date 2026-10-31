@@ -34,10 +34,21 @@ def leer_nuevas(posiciones):
             continue
         with ruta.open(encoding="utf-8") as f:
             f.seek(posiciones.get(origen, 0))
-            for linea in f:
-                if linea.strip():
+            while True:
+                inicio = f.tell()
+                linea = f.readline()
+                if not linea:
+                    break
+                if not linea.endswith("\n"):
+                    f.seek(inicio)
+                    break
+                if not linea.strip():
+                    continue
+                try:
                     r = json.loads(linea)
-                    lineas.append((r.get("t", ""), origen, r))
+                except json.JSONDecodeError:
+                    continue
+                lineas.append((r.get("t", ""), origen, r))
             posiciones[origen] = f.tell()
     return sorted(lineas, key=lambda x: x[0])
 
@@ -48,7 +59,12 @@ def resumen():
         if not ruta.exists():
             continue
         for linea in ruta.read_text(encoding="utf-8").splitlines():
-            r = json.loads(linea)
+            if not linea.strip():
+                continue
+            try:
+                r = json.loads(linea)
+            except json.JSONDecodeError:
+                continue
             capturas += origen == "ATACANTE" and bool(r.get("canario_capturado"))
             bloqueos += origen == "ESCUDO" and r.get("nivel") in ("BLOQUEO", "ALERTA")
             rug += origen == "ESCUDO" and r.get("tipo") == "rug_pull"

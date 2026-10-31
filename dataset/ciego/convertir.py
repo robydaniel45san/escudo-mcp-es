@@ -67,6 +67,25 @@ def main():
             print("  ·", e)
         sys.exit(1)
 
+    cuenta_previa = Counter()
+    for f in filas:
+        f = {k.strip().lower(): (v or "").strip() for k, v in f.items() if k}
+        env = f["envenenada"].lower() in {"si", "sí"}
+        cuenta_previa[(f["variante"], env)] += 1
+    avisos = [v for v in ["en", "es", "spanglish", "disfrazada"]
+              if cuenta_previa[(v, False)] < 3 or cuenta_previa[(v, True)] < 3]
+    print(f"{'variante':<12}{'limpias':>9}{'envenenadas':>13}")
+    for v in ["en", "es", "spanglish", "disfrazada"]:
+        print(f"{v:<12}{cuenta_previa[(v, False)]:>9}{cuenta_previa[(v, True)]:>13}")
+    if len(filas) < 24 or avisos:
+        if DESTINO.exists():
+            DESTINO.unlink()
+        print(f"El CSV tiene {len(filas)} casos. No se genera el archivo medible hasta tener al menos 24, "
+              "con 3 limpias y 3 envenenadas por variante.")
+        if avisos:
+            print("Faltan en:", ", ".join(avisos))
+        sys.exit(2)
+
     rng = random.Random(SEMILLA_DISFRAZ)
     casos = []
     for f in filas:
@@ -82,15 +101,7 @@ def main():
         for c in casos:
             fh.write(json.dumps(c, ensure_ascii=False) + "\n")
 
-    cuenta = Counter((c["variante"], c["envenenada"]) for c in casos)
     print(f"{len(casos)} casos convertidos en {DESTINO.relative_to(AQUI.parent.parent)}")
-    print(f"{'variante':<12}{'limpias':>9}{'envenenadas':>13}")
-    for v in ["en", "es", "spanglish", "disfrazada"]:
-        print(f"{v:<12}{cuenta[(v, False)]:>9}{cuenta[(v, True)]:>13}")
-    avisos = [v for v in ["en", "es", "spanglish", "disfrazada"] if cuenta[(v, False)] < 3 or cuenta[(v, True)] < 3]
-    if len(casos) < 24 or avisos:
-        print("Aviso: lo recomendado es al menos 24 casos y 3 limpias + 3 envenenadas por variante.",
-              f"Faltan en: {', '.join(avisos)}" if avisos else "")
     print("SHA-256:", hashlib.sha256(DESTINO.read_bytes()).hexdigest())
     print("Siguiente paso: commit del set ciego ANTES de medir (ver INSTRUCCIONES.md).")
 

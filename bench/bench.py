@@ -214,11 +214,14 @@ def informe(args, casos, ruta, huella, columnas, m, filas, archivos, conectados)
     texto_hallazgos = notas.read_text(encoding="utf-8").strip() if notas.exists() else f"_(Los escribe el equipo en `{notas.relative_to(RAIZ).as_posix()}`.)_"
     L += ["", "## Hallazgos", "", texto_hallazgos, "",
           "## Limitaciones", "",
-          "- El banco (80 casos) fue escrito por el mismo equipo que escribió las reglas. Las frases de prueba son distintas de las de desarrollo, pero quien escribe las reglas conoce el estilo de los ataques.",
-          "- Los ataques salen de plantillas y son más regulares que los reales.",
+          ("- La autoría de este set está en `bench/hallazgos_ciego.md`. Si quien redactó los casos ya conocía las reglas, el número no sustituye a una prueba independiente."
+           if args.set == "ciego" else
+           "- El banco (80 casos) fue escrito por el mismo equipo que escribió las reglas. Las frases de prueba son distintas de las de desarrollo, pero quien escribe las reglas conoce el estilo de los ataques."),
+          "- Los ataques salen de plantillas y son más regulares que los reales." if args.set != "ciego" else
+          "- Los casos son inventados y pocos: los porcentajes son indicativos.",
           "- Cada servidor tiene una sola herramienta y la descripción va en el docstring; otras formas de declararla podrían cambiar lo que ve un escáner estático.",
           "- Solo se cuentan las reglas de los escáneres que analizan descripciones de herramientas; los escáneres tienen otras reglas que aquí no aplican.",
-          "- Muestra pequeña: los porcentajes son indicativos, no estadísticamente concluyentes.", ""]
+          *(["- Muestra pequeña: los porcentajes son indicativos, no estadísticamente concluyentes."] if args.set != "ciego" else []), ""]
     return "\n".join(L)
 
 

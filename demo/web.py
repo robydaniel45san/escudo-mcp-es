@@ -22,6 +22,7 @@ sys.path.insert(0, str(RAIZ))
 sys.path.insert(0, str(RAIZ / "demo"))
 from escudo import analizar  # noqa: E402
 from escudo.informe import redactar  # noqa: E402
+from escudo.secretos import buscar_secreto  # noqa: E402
 from demo import herramientas, mcpaudit, mcpscan  # noqa: E402
 
 sys.path.insert(0, str(RAIZ / "laboratorio"))
@@ -133,6 +134,29 @@ def lab_escenario(clave):
     return {"ok": True, "sesion": eventos.sesion_actual()["sesion"]}
 
 
+def ideas_analizar(texto):
+    """Capas 1 a 3 del escudo sobre un texto: normalización, intención y huella."""
+    import hashlib
+    res = analizar(texto)
+    return {"normalizado": res["normalizado"], "hallazgos": res["hallazgos"], "disfraz": res["disfraz"],
+            "envenenada": res["envenenada"], "huella": hashlib.sha256(texto.encode("utf-8")).hexdigest()[:16],
+            "invisibles": sum(texto.count(c) for c in "​‌‍⁠﻿­")}
+
+
+def ideas_hallazgo():
+    """Detección por variante en los sets de desarrollo y de prueba, leída de los CSV oficiales."""
+    salida = {}
+    for conjunto in ("desarrollo", "prueba"):
+        ruta = RAIZ / "bench" / f"resultados_{conjunto}.csv"
+        if not ruta.exists():
+            continue
+        filas = [f for f in csv.DictReader(ruta.read_text(encoding="utf-8").splitlines()) if f["envenenada"] == "True"]
+        salida[conjunto] = {v: {c: [sum(f[c] == "True" for f in filas if f["variante"] == v), sum(1 for f in filas if f["variante"] == v)]
+                                for c in ("mcpscan", "mcpaudit", "escudo")}
+                            for v in ("en", "es", "spanglish", "disfrazada")}
+    return salida
+
+
 def probar_conector(url):
     """Corre laboratorio/probar_conector.py (solo lee las descripciones del conector)."""
     r = subprocess.run([str(PY_LAB), str(RAIZ / "laboratorio" / "probar_conector.py"), url, "--json"],
@@ -177,7 +201,8 @@ class Manejador(BaseHTTPRequestHandler):
             sesion = urllib.parse.parse_qs(ruta.query).get("sesion", [None])[0]
             return self._json(lab_estado(sesion))
         paginas = {"/": "simulacion.html", "/simulacion": "simulacion.html", "/escanear": "index.html", "/index.html": "index.html",
-                   "/laboratorio": "laboratorio.html", "/conectores": "conectores.html", "/alertas.js": "alertas.js"}
+                   "/laboratorio": "laboratorio.html", "/conectores": "conectores.html", "/alertas.js": "alertas.js",
+                   "/ideas": "ideas.html"}
         if self.path in paginas:
             cuerpo = (WEB / paginas[self.path]).read_bytes()
             self.send_response(200)
@@ -187,6 +212,8 @@ class Manejador(BaseHTTPRequestHandler):
             self.wfile.write(cuerpo)
         elif self.path == "/api/ejemplos":
             self._json(ejemplos())
+        elif self.path == "/api/ideas/hallazgo":
+            self._json(ideas_hallazgo())
         elif self.path == "/api/resultados":
             self._json(resultados())
         else:
@@ -194,6 +221,14 @@ class Manejador(BaseHTTPRequestHandler):
 
     def do_POST(self):
         largo = int(self.headers.get("Content-Length", 0))
+        if self.path in ("/api/ideas/analizar", "/api/ideas/argumentos"):
+            if largo > MAX_CARACTERES * 4:
+                return self._json({"error": f"El texto supera los {MAX_CARACTERES} caracteres."}, 413)
+            texto = str(json.loads(self.rfile.read(largo) or b"{}").get("texto", ""))[:MAX_CARACTERES]
+            if self.path == "/api/ideas/analizar":
+                return self._json(ideas_analizar(texto))
+            secreto = buscar_secreto(texto)
+            return self._json({"bloqueado": bool(secreto), "coincidencia": secreto})
         if self.path == "/api/conectores/probar":
             try:
                 url = str(json.loads(self.rfile.read(largo) or b"{}").get("url", "")).strip() if largo < 2000 else ""
