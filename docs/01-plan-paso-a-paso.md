@@ -76,6 +76,13 @@ Cuatro carriles independientes. Nadie espera a nadie hasta la fase 3.
 | 2.E2 | Métricas por variante: recall, precisión y falsas alarmas | Sale una tabla en CSV |
 | 2.E3 | Generar `RESULTS.md` automáticamente desde el CSV | Un solo comando produce la tabla |
 
+### Carril D · Set ciego (validación independiente)
+| # | Paso | Terminado cuando |
+|---|------|------------------|
+| 2.D5 | Una persona que **no vio** `escudo/` ni los ataques del banco escribe de 24 a 32 casos en `dataset/ciego/casos_ciegos.csv`, siguiendo [`dataset/ciego/INSTRUCCIONES.md`](../dataset/ciego/INSTRUCCIONES.md) | `python dataset/ciego/convertir.py` valida sin errores |
+| 2.D6 | Commit del set ciego con su huella **antes** de medir | El commit existe |
+| 2.D7 | `python bench/bench.py --set ciego --out bench/informe_ciego.md` y hallazgos en `bench/hallazgos_ciego.md` | Ese número reemplaza al 12 de 12 en el pitch |
+
 **Punto de control a las 2:30:** banco completo, escudo con tests, demo con texto fijo y bench que corre. Si algo falta, se recorta el alcance, no se mueve la hora.
 
 ---

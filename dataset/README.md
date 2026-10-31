@@ -1,3 +1,4 @@
 # dataset
 
-Banco de descripciones MCP ficticias. Se arma en la fase 2 (ver `docs/01-plan-paso-a-paso.md`, carril D).
+- `generar.py`: genera el banco reproducible (`casos.jsonl`, `casos_desarrollo.jsonl`, `casos_prueba.jsonl`). Ver `../DATASET.md`.
+- `ciego/`: set ciego escrito por alguien que no vio las reglas. Instrucciones en `ciego/INSTRUCCIONES.md`; se convierte con `python dataset/ciego/convertir.py`.

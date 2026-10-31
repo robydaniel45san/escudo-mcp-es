@@ -209,8 +209,9 @@ def informe(args, casos, ruta, huella, columnas, m, filas, archivos, conectados)
             else:
                 celdas.append("· limpia")
         L.append(f"| {f['id']} | {NOMBRE_VARIANTE[f['variante']]} | {real} | " + " | ".join(celdas) + f" | {f['reglas_escudo'] or '·'} |")
-    notas = RAIZ / "bench" / "hallazgos.md"
-    texto_hallazgos = notas.read_text(encoding="utf-8").strip() if notas.exists() else "_(Los escribe el equipo en `bench/hallazgos.md`.)_"
+    # Cada set tiene sus propios hallazgos: bench/hallazgos.md (prueba) o bench/hallazgos_<set>.md.
+    notas = RAIZ / "bench" / ("hallazgos.md" if args.set == "prueba" else f"hallazgos_{args.set}.md")
+    texto_hallazgos = notas.read_text(encoding="utf-8").strip() if notas.exists() else f"_(Los escribe el equipo en `{notas.relative_to(RAIZ).as_posix()}`.)_"
     L += ["", "## Hallazgos", "", texto_hallazgos, "",
           "## Limitaciones", "",
           "- El banco (80 casos) fue escrito por el mismo equipo que escribió las reglas. Las frases de prueba son distintas de las de desarrollo, pero quien escribe las reglas conoce el estilo de los ataques.",
