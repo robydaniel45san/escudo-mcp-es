@@ -1,0 +1,2 @@
+# El banco se guarda byte a byte para que su huella SHA-256 no cambie al clonar
+dataset/*.jsonl -text

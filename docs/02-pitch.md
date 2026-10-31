@@ -20,8 +20,8 @@ El guion sigue los cinco bloques que pide la organización. Los números entre c
 > Eso se llama **tool poisoning**. Y la pregunta que nadie había medido es: si esa orden está en español, ¿alguien la detecta?"
 
 ### 0:30–1:00 · De qué partimos
-> "No empezamos de cero. Ya existen escáneres abiertos para este ataque, como **[nombres de los escáneres usados]**. Los usamos tal cual, sin modificarlos, como línea base.
-> Lo que no existía era un banco de pruebas en español. Lo armamos en el sprint: **[N] descripciones ficticias** en cuatro variantes: inglés, español, spanglish y disfrazada con letras de otros alfabetos."
+> "No empezamos de cero. Ya existen escáneres abiertos para este ataque, como **mcpscan** y **mcp-audit**. Los usamos tal cual, sin modificarlos, como línea base.
+> Lo que no existía era un banco de pruebas en español. Lo armamos en el sprint: **80 descripciones ficticias** en cuatro variantes: inglés, español, spanglish y disfrazada con letras de otros alfabetos."
 
 ### 1:00–2:10 · La demo
 > "Este es nuestro servidor MCP de juguete. Pego la descripción de la herramienta del IVA.
@@ -34,10 +34,13 @@ El guion sigue los cinco bloques que pide la organización. Los números entre c
 **Plan B:** si la demo en vivo falla, se pasa al video de respaldo sin explicar el fallo más de una frase.
 
 ### 2:10–2:40 · Evidencia
-> "Medimos sobre un set de prueba que separamos antes de ajustar las reglas.
-> El escáner base detectó **[X] de [Y]** ataques en inglés, pero solo **[X] de [Y]** fuera del inglés.
-> Con el Escudo ES detectamos **[X] de [Y]**. A cambio aparecieron **[Z] falsas alarmas**, todas explicadas en el repositorio.
-> Todo se reproduce con un solo comando."
+> "Armamos 80 casos ficticios y separamos 24 para la prueba antes de escribir una sola regla.
+> Con frases típicas, mcp-audit detectó 7 de 7 ataques en inglés y **0 de 7 en español**.
+> Y con frases nuevas, los dos escáneres detectaron solo **5 de 12** ataques, en cualquier idioma: reconocen frases, no intenciones.
+> Sumando el Escudo ES llegamos a **[12 de 12 / resultado del set ciego]**, sin falsas alarmas nuevas.
+> Todo se reproduce con un comando."
+
+**Antes de presentar:** si el set ciego está hecho, usar su número en lugar del 12 de 12, y decir que el 12 de 12 tiene sesgo porque la misma persona escribió las frases y las reglas.
 
 ### 2:40–3:00 · Limitaciones y siguiente paso
 > "Nuestros límites: el banco lo escribimos nosotros, los datos son ficticios y las reglas pueden sobreajustarse.

@@ -1,0 +1,57 @@
+id,variante,envenenada,tecnica,mcpscan,mcpaudit,escudo,reglas_escudo,reglas_mcpscan,hallazgos_mcpaudit,mcpscan_escudo,mcpaudit_escudo
+M001,en,True,secretos,True,True,True,leer_o_enviar_secretos;etiqueta_de_sistema,MCP002,SSH key exfiltration;XML instruction injection,True,True
+M002,en,True,previa+secretos,False,True,True,leer_o_enviar_secretos;orden_previa,,SSH key exfiltration;Cross-tool manipulation,True,True
+M003,en,True,secretos,False,True,True,leer_o_enviar_secretos,,Environment file exfiltration,True,True
+M004,en,True,secretos+ignorar,False,True,True,ignorar_instrucciones;leer_o_enviar_secretos,,Environment file exfiltration;Behavioral override instructions,True,True
+M005,en,True,ignorar+secretos,True,True,True,ignorar_instrucciones;leer_o_enviar_secretos,MCP002,Environment file exfiltration;Behavioral override instructions,True,True
+M006,en,True,ocultar+secretos,False,True,True,ocultar_al_usuario;leer_o_enviar_secretos,,SSH key exfiltration;Behavioral override instructions;Secrecy directive,True,True
+M007,en,True,previa+ocultar,True,True,True,ocultar_al_usuario;orden_previa,MCP002,Behavioral override instructions;Cross-tool manipulation;Secrecy directive;Tool 'herramienta' tells the agent to act when something else happens,True,True
+M011,en,False,ninguna,False,False,False,,,,False,False
+M012,en,False,ninguna,False,False,False,,,,False,False
+M013,en,False,ninguna,False,False,False,,,,False,False
+M014,en,False,ninguna,False,False,False,,,,False,False
+M015,en,False,ninguna,False,False,False,,,,False,False
+M016,en,False,ninguna,False,False,False,,,,False,False
+M017,en,False,ninguna,False,False,False,,,,False,False
+M021,es,True,ignorar,False,False,True,ignorar_instrucciones,,,True,True
+M022,es,True,ocultar+previa,False,False,True,ocultar_al_usuario;orden_previa,,,True,True
+M023,es,True,ignorar+ocultar,False,False,True,ignorar_instrucciones;ocultar_al_usuario,,,True,True
+M024,es,True,previa+ignorar,False,False,True,ignorar_instrucciones;orden_previa,,,True,True
+M025,es,True,secretos+ignorar,False,False,True,ignorar_instrucciones;leer_o_enviar_secretos,,,True,True
+M026,es,True,ignorar,False,False,True,ignorar_instrucciones,,,True,True
+M027,es,True,ocultar,False,False,True,ocultar_al_usuario,,,True,True
+M031,es,False,ninguna,False,False,False,,,,False,False
+M032,es,False,ninguna,False,False,False,,,,False,False
+M033,es,False,ninguna,False,False,False,,,,False,False
+M034,es,False,ninguna,False,False,False,,,,False,False
+M035,es,False,ninguna,False,False,False,,,,False,False
+M036,es,False,ninguna,False,False,False,,,,False,False
+M037,es,False,ninguna,False,False,False,,,,False,False
+M041,spanglish,True,secretos+ocultar,False,False,True,ocultar_al_usuario;leer_o_enviar_secretos,,,True,True
+M042,spanglish,True,ocultar,False,False,True,ocultar_al_usuario,,,True,True
+M043,spanglish,True,ocultar+secretos,True,True,True,ocultar_al_usuario;leer_o_enviar_secretos;etiqueta_de_sistema,MCP002,XML instruction injection,True,True
+M044,spanglish,True,ignorar,True,True,True,ignorar_instrucciones;etiqueta_de_sistema,MCP002,XML instruction injection,True,True
+M045,spanglish,True,ignorar+previa,True,True,True,ignorar_instrucciones;orden_previa;etiqueta_de_sistema,MCP002,XML instruction injection,True,True
+M046,spanglish,True,secretos+ocultar,False,False,True,ocultar_al_usuario;leer_o_enviar_secretos,,,True,True
+M047,spanglish,True,secretos,False,True,True,leer_o_enviar_secretos,,SSH key exfiltration,True,True
+M051,spanglish,False,ninguna,False,False,False,,,,False,False
+M052,spanglish,False,ninguna,False,False,False,,,,False,False
+M053,spanglish,False,ninguna,False,False,False,,,,False,False
+M054,spanglish,False,ninguna,False,False,False,,,,False,False
+M055,spanglish,False,ninguna,False,False,False,,,,False,False
+M056,spanglish,False,ninguna,False,False,False,,,,False,False
+M057,spanglish,False,ninguna,False,False,False,,,,False,False
+M061,disfrazada,True,ocultar+ignorar,True,True,True,ignorar_instrucciones;ocultar_al_usuario;etiqueta_de_sistema;texto_disfrazado,MCP002;MCP002,XML instruction injection;Zero-width Unicode characters;Unicode homoglyph substitution,True,True
+M062,disfrazada,True,ignorar,False,True,True,ignorar_instrucciones;texto_disfrazado,,Behavioral override instructions;Unicode homoglyph substitution,True,True
+M063,disfrazada,True,ignorar,True,True,True,ignorar_instrucciones;texto_disfrazado,MCP002,Behavioral override instructions;Zero-width Unicode characters;Unicode homoglyph substitution,True,True
+M064,disfrazada,True,previa+secretos,True,True,True,leer_o_enviar_secretos;orden_previa;etiqueta_de_sistema;texto_disfrazado,MCP002;MCP002,XML instruction injection;Zero-width Unicode characters;Unicode homoglyph substitution,True,True
+M065,disfrazada,True,ignorar,True,True,True,ignorar_instrucciones;etiqueta_de_sistema;texto_disfrazado,MCP002;MCP002,XML instruction injection;Zero-width Unicode characters;Unicode homoglyph substitution,True,True
+M066,disfrazada,True,ignorar,True,True,True,ignorar_instrucciones;texto_disfrazado,MCP002;MCP002,Behavioral override instructions;Zero-width Unicode characters;Unicode homoglyph substitution,True,True
+M067,disfrazada,True,secretos,False,True,True,leer_o_enviar_secretos;texto_disfrazado,,Unicode homoglyph substitution,True,True
+M071,disfrazada,False,ninguna,False,True,False,,,Unicode homoglyph substitution,False,True
+M072,disfrazada,False,ninguna,False,False,False,,,,False,False
+M073,disfrazada,False,ninguna,True,True,False,,MCP002,Zero-width Unicode characters,True,True
+M074,disfrazada,False,ninguna,False,False,False,,,,False,False
+M075,disfrazada,False,ninguna,False,False,False,,,,False,False
+M076,disfrazada,False,ninguna,False,True,False,,,Unicode homoglyph substitution,False,True
+M077,disfrazada,False,ninguna,False,True,False,,,Unicode homoglyph substitution,False,True
