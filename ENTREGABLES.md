@@ -1,6 +1,16 @@
 # Entregables · Escudo MCP en español
 
-Portal: lo que pide https://www.cursorbolivia.com/sprint#entrega . El repositorio ya cubre B y C. A y D se pegan en el portal.
+Portal: https://www.cursorbolivia.com/hackathon/entrar (el botón «Entrar al portal de entrega»). Pide el email con el que aceptaron al equipo. Sin ese correo no se puede cargar A ni el PowerPoint.
+
+| Pieza | Dónde está | ¿Subida? |
+|---|---|---|
+| B · Repositorio | https://github.com/robydaniel45san/escudo-mcp-es · rama `main` | Sí. El repo es público. |
+| Demo publicada | https://robydaniel45san.github.io/escudo-mcp-es/ | Sí. Es la pantalla de pruebas. |
+| A · Identificación | El texto de abajo | No está en el portal. Hay que pegarlo al entrar con el email. |
+| C · Evidencia | `CONTRIBUTION.md`, `RESULTS.md`, `VALIDACION.md` dentro del repo | Sí, como parte del repositorio. El portal no tiene una copia aparte. |
+| D · Diapositivas | `pitch-escudo-mcp.pptx` en esta carpeta | No está en el portal. El archivo se sube ahí. La demo en vivo es local. |
+
+El directorio público de equipos (https://www.cursorbolivia.com/hackathon/equipos) no lista a Arquisoft.
 
 ## A · Identificación
 
