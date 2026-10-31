@@ -83,10 +83,16 @@ python validar.py
 
 `bench.py --set prueba` reescribe `RESULTS.md`. Todo corre en local, con descripciones y claves ficticias. No se escanean servidores MCP de terceros.
 
+## Demo publicada
+
+https://robydaniel45san.github.io/escudo-mcp-es/
+
+Esa página carga `escudo/__init__.py`, `normalizar.py` y `reglas.py` y ejecuta `analizar()` en el navegador con Pyodide. Sirve para pegar una descripción y ver la cuarentena. El verificador de los puertos 9200 y 9100 no está en internet: sigue siendo el comando de arriba, en esta máquina. Cada push a `main` republica la página con el workflow `.github/workflows/pages.yml`.
+
 ## Qué no hace
 
 - No promete cubrir cualquier paráfrasis. El hueco en español está medido y listado.
-- No entrena un modelo ni se despliega fuera de esta máquina.
+- No entrena un modelo. La página publicada solo analiza texto; no se pone delante de un conector ajeno.
 - No lee archivos reales ni envía nada a internet. El «secreto» del laboratorio es el canario `CANARIO-ARQUISOFT-0001`.
 
 ## Equipo
