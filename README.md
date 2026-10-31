@@ -1,7 +1,7 @@
 # Escudo MCP en español
 
-> **¿Los detectores de herramientas MCP envenenadas atrapan un ataque escrito en español?**
-> Lo medimos, construimos una capa bilingüe que lo mejora y lo demostramos con números.
+> **Escudo MCP: verificador de conectores para agentes de IA, con foco en ataques en español.**
+> Medimos que los detectores existentes no ven los ataques en español, construimos un verificador que se para entre el agente y los conectores, y lo demostramos con números, logs estandarizados y un laboratorio con Cursor real.
 
 | | |
 |---|---|
@@ -56,6 +56,14 @@ escudo-mcp-es/
 ├── DATASET.md             ← origen, variantes y licencia del banco
 └── RESULTS.md             ← tabla final de resultados y limitaciones
 ```
+
+## Páginas de la demo (`python demo/web.py`)
+| Página | Para qué |
+|--------|----------|
+| `/` Simulación | Un agente se conecta por MCP a 3 conectores; con y sin escudo |
+| `/laboratorio` Laboratorio en vivo | Línea de tiempo con el punto exacto de quiebre, riesgo o defensa, y ventanas de alerta |
+| `/conectores` Probar conectores | Verificar cualquier conector MCP por URL o pegando un `mcp.json`, con alertas |
+| `/escanear` Escanear una descripción | mcpscan, mcp-audit y el Escudo ES sobre un texto |
 
 ## Laboratorio con Cursor real
 Servidor MCP malicioso (:9100) + **Escudo verificador** (:9200) + Cursor como agente. Ver [`laboratorio/README.md`](laboratorio/README.md).

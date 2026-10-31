@@ -16,6 +16,23 @@ Ya existen **detectores** para esto. Nuestra pregunta fue: **¿funcionan si la t
 
 ---
 
+## 1b. ¿Es un "MCP bilingüe"?
+
+No. Lo que construimos es un **verificador que se para entre el agente y los conectores MCP**: una puerta de control. El idioma es una de sus capacidades, no el producto.
+
+| Capa del verificador | ¿Depende del idioma? |
+|----------------------|----------------------|
+| Limpiar disfraces (letras cirílicas, caracteres invisibles) | No |
+| Reglas de intención en inglés y en español | **Sí: es el aporte que medimos** |
+| Huella de cada descripción aprobada (detecta el rug pull) | No |
+| Revisar los argumentos para que no salgan secretos | No |
+
+Forma de presentarlo: **"Escudo MCP: verificador de conectores para agentes de IA, con foco en ataques en español"**.
+- **El hallazgo** es el idioma: los detectores existentes no vieron los ataques en español.
+- **La solución** protege también en cualquier idioma: rug pull y robo de secretos.
+
+**Punto débil honesto:** las reglas son patrones de texto y pueden fallar con paráfrasis nuevas, igual que los detectores que criticamos. Por eso hacen falta el **set ciego** y, como siguiente paso, un juez con IA como segunda opinión.
+
 ## 2. Qué pide el Track 1 y qué hicimos para cumplirlo
 
 El Track 1 pregunta: *¿cómo protegemos y evaluamos sistemas de IA para que no los engañen ni hagan cosas sin permiso?*

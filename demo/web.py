@@ -133,6 +133,17 @@ def lab_escenario(clave):
     return {"ok": True, "sesion": eventos.sesion_actual()["sesion"]}
 
 
+def probar_conector(url):
+    """Corre laboratorio/probar_conector.py (solo lee las descripciones del conector)."""
+    r = subprocess.run([str(PY_LAB), str(RAIZ / "laboratorio" / "probar_conector.py"), url, "--json"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, cwd=str(RAIZ))
+    linea = next((l for l in reversed(r.stdout.splitlines()) if l.startswith("{")), "")
+    datos = json.loads(linea) if linea else {"error": "La prueba del conector no devolvió resultado."}
+    if "error" in datos:
+        raise RuntimeError(datos["error"])
+    return datos
+
+
 def lab_reiniciar():
     for url in ("http://127.0.0.1:9100/reiniciar", "http://127.0.0.1:9200/reiniciar"):
         try:
@@ -166,11 +177,11 @@ class Manejador(BaseHTTPRequestHandler):
             sesion = urllib.parse.parse_qs(ruta.query).get("sesion", [None])[0]
             return self._json(lab_estado(sesion))
         paginas = {"/": "simulacion.html", "/simulacion": "simulacion.html", "/escanear": "index.html", "/index.html": "index.html",
-                   "/laboratorio": "laboratorio.html"}
+                   "/laboratorio": "laboratorio.html", "/conectores": "conectores.html", "/alertas.js": "alertas.js"}
         if self.path in paginas:
             cuerpo = (WEB / paginas[self.path]).read_bytes()
             self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Type", "text/javascript; charset=utf-8" if self.path.endswith(".js") else "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(cuerpo)))
             self.end_headers()
             self.wfile.write(cuerpo)
@@ -183,6 +194,14 @@ class Manejador(BaseHTTPRequestHandler):
 
     def do_POST(self):
         largo = int(self.headers.get("Content-Length", 0))
+        if self.path == "/api/conectores/probar":
+            try:
+                url = str(json.loads(self.rfile.read(largo) or b"{}").get("url", "")).strip() if largo < 2000 else ""
+                if not url:
+                    return self._json({"error": "Escribe la URL del conector, por ejemplo http://127.0.0.1:9100/mcp"}, 400)
+                return self._json(probar_conector(url))
+            except Exception as e:
+                return self._json({"error": str(e)}, 502)
         if self.path.startswith("/api/lab/"):
             try:
                 pedido = json.loads(self.rfile.read(largo) or b"{}") if largo < 1000 else {}

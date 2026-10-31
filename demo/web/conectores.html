@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escudo MCP · Probar conectores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Formulario arriba, informe por conector abajo. Las alertas salen en ventanas aparte (alertas.js). */
+:root{
+  --bg:#F6F6F3; --surface:#FFFFFF; --sunken:#F0F0EC; --ink:#17171A; --muted:#5E5E66; --line:#E2E2DC;
+  --accent:#3B5BFF; --accent-ink:#FFFFFF;
+  --ok:#16803C; --ok-bg:#E4F4E8; --crit:#C0352B; --crit-bg:#FBE5E2; --warn:#9A5B00; --warn-bg:#FBF0DA;
+  --hero-a:#000000; --hero-b:#666666;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#131209; --surface:#1F1F1F; --sunken:#272727; --ink:#F2F2EE; --muted:#A3A3A0; --line:#313131;
+  --accent:#8FA2FF; --accent-ink:#131209;
+  --ok:#5BD08A; --ok-bg:#17301F; --crit:#F27A6E; --crit-bg:#3B1C19; --warn:#F0B45A; --warn-bg:#3A2B12;
+  --hero-a:#FFFFFF; --hero-b:#9B9B9B; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+.page{max-width:1100px;margin:0 auto;padding:24px 24px 64px;display:grid;gap:24px}
+nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.tabs a{font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.eyebrow{font-family:var(--mono);font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{margin:8px 0 0;max-width:720px;font-size:36px;line-height:40px;font-weight:700;letter-spacing:-.02em;text-wrap:balance;
+   background:linear-gradient(90deg,var(--hero-a),var(--hero-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:8px 0 0;max-width:720px;color:var(--muted);text-wrap:pretty}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:16px;min-width:0}
+.card h2{margin:0;font-size:20px;line-height:28px;font-weight:700}
+label{display:grid;gap:4px;font-size:14px;line-height:20px;font-weight:600}
+input,textarea{font:inherit;font-size:16px;line-height:24px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--sunken);color:var(--ink);width:100%}
+textarea{font-family:var(--mono);font-size:14px;line-height:20px;min-height:140px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-size:16px;line-height:24px;font-weight:600;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;transition:transform .3s var(--ease),opacity .3s var(--ease)}
+.btn:hover{transform:translateY(-1px)} .btn:active{transform:scale(.98)} .btn:disabled{opacity:.5;cursor:wait;transform:none}
+.btn.ghost{background:transparent;color:var(--accent);font-size:14px;line-height:20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{margin:0;font-size:14px;line-height:20px;color:var(--muted)}
+.err{margin:0;font-size:14px;line-height:20px;color:var(--crit);font-weight:600}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.rep{display:grid;gap:16px}
+.head{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:start}
+.head .u{font-family:var(--mono);font-size:14px;line-height:20px;overflow-wrap:anywhere}
+.badge{font-size:14px;line-height:20px;font-weight:700;padding:4px 12px;border-radius:999px}
+.badge.bad{background:var(--crit-bg);color:var(--crit)} .badge.good{background:var(--ok-bg);color:var(--ok)}
+.tools{display:grid;gap:8px}
+.tool{border-radius:12px;padding:12px 16px;display:grid;gap:8px;border:1px solid var(--line);background:var(--sunken)}
+.tool.bad{border-color:var(--crit);background:var(--crit-bg)}
+.tool .h{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tool .n{font-family:var(--mono);font-size:14px;line-height:20px;font-weight:500}
+.tool p{margin:0;font-family:var(--mono);font-size:12px;line-height:16px;overflow-wrap:anywhere}
+.pill{font-size:12px;line-height:16px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.pill.bad{color:var(--crit)} .pill.good{color:var(--ok)}
+mark{background:var(--crit);color:var(--surface);font-weight:600;border-radius:4px;padding:0 2px}
+mark.hid{background:var(--warn-bg);color:var(--warn)}
+.foot{font-size:12px;line-height:16px;color:var(--muted);margin:0}
+code{font-family:var(--mono);font-size:.9em}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:32px;text-align:center;color:var(--muted)}
+@media (max-width:800px){.cols{grid-template-columns:minmax(0,1fr)}h1{font-size:30px;line-height:36px}.page{padding:16px 16px 48px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <nav>
+    <span class="eyebrow">Equipo Arquisoft · Escudo MCP</span>
+    <div class="tabs"><a href="/">Simulación</a><a href="/laboratorio">Laboratorio en vivo</a><a href="/conectores" aria-current="page">Probar conectores</a><a href="/escanear">Escanear una descripción</a></div>
+  </nav>
+  <header>
+    <h1>Prueba un conector MCP<br>antes de dárselo a tu agente</h1>
+    <p class="sub">El Escudo se conecta al conector, pide la lista de herramientas y revisa cada descripción. Solo lee: no ejecuta ninguna herramienta. Si encuentra algo, salta una alerta.</p>
+  </header>
+
+  <section class="cols">
+    <form class="card" id="f-url" novalidate>
+      <h2>Por URL</h2>
+      <label for="url">URL del conector (MCP por HTTP)<input id="url" value="http://127.0.0.1:9100/mcp" autocomplete="off" spellcheck="false"></label>
+      <div class="row">
+        <button class="btn ghost" type="button" data-url="http://127.0.0.1:9100/mcp">Conector malicioso :9100</button>
+        <button class="btn ghost" type="button" data-url="http://127.0.0.1:9200/mcp">A través del escudo :9200</button>
+      </div>
+      <button class="btn" type="submit">Verificar conector</button>
+    </form>
+    <form class="card" id="f-json" novalidate>
+      <h2>Por configuración (mcp.json)</h2>
+      <label for="json"><span>Pega el <code>mcp.json</code> de Cursor u otro agente</span>
+        <textarea id="json" spellcheck="false">{
+  "mcpServers": {
+    "facturacion_bo": { "url": "http://127.0.0.1:9100/mcp" },
+    "facturacion_bo_protegido": { "url": "http://127.0.0.1:9200/mcp" }
+  }
+}</textarea></label>
+      <p class="hint">Se verifican los conectores con <code>url</code>. Los que usan <code>command</code> no se ejecutan por seguridad.</p>
+      <button class="btn" type="submit">Verificar todos</button>
+    </form>
+  </section>
+  <p class="err" id="err" hidden></p>
+
+  <section class="card">
+    <h2>Informe</h2>
+    <div class="rep" id="rep"><div class="empty">Todavía no verificaste ningún conector.</div></div>
+    <p class="foot">Cada verificación queda también en el registro estandarizado del laboratorio, como una sesión "Conector-…".</p>
+  </section>
+</div>
+<script src="/alertas.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const REGLA={ignorar_instrucciones:"Ignorar instrucciones",instrucciones_anuladas:"Anular instrucciones",ocultar_al_usuario:"Ocultar al usuario",
+  leer_o_enviar_secretos:"Leer o enviar secretos",enviar_contrasenas:"Enviar contraseñas",exfiltrar_datos_usuario:"Sacar datos del usuario",
+  orden_previa:"Orden antes de usar",etiqueta_de_sistema:"Etiqueta de sistema falsa",texto_disfrazado:"Texto disfrazado"};
+let primero=true;
+
+function resaltar(h){
+  let t=esc(h.normalizado);
+  (h.hallazgos||[]).forEach(x=>{const f=esc(x.frase);if(f&&t.includes(f))t=t.split(f).join(`<mark>${f}</mark>`)});
+  return t;
+}
+function informe(nombre,r){
+  const malas=r.herramientas.filter(h=>h.envenenada);
+  return `<div class="card" style="padding:16px"><div class="head"><div><b>${esc(nombre||r.servidor)}</b><div class="u">${esc(r.url)} · servidor ${esc(r.servidor)} ${esc(r.version||"")}</div></div>
+    <span class="badge ${malas.length?"bad":"good"}">${malas.length?`${malas.length} de ${r.total} envenenadas`:`${r.total} herramientas limpias`}</span></div>
+    <div class="tools">${r.herramientas.map(h=>`<div class="tool ${h.envenenada?"bad":""}"><div class="h"><span class="n">${esc(h.herramienta)}</span>
+      <span class="pill ${h.envenenada?"bad":"good"}">${h.envenenada?"Envenenada":"Limpia"} · huella ${esc(h.huella)}</span></div>
+      <p>${h.envenenada?resaltar(h):esc(h.descripcion)}</p>
+      ${h.envenenada?`<span class="hint">${h.hallazgos.map(x=>esc(REGLA[x.regla]||x.regla)).join(" · ")}</span>`:""}</div>`).join("")}</div></div>`;
+}
+async function verificar(url,nombre){
+  const res=await fetch("/api/conectores/probar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})});
+  const d=await res.json();if(!res.ok)throw new Error(d.error||"No se pudo verificar el conector.");
+  if(primero){$("#rep").innerHTML="";primero=false}
+  $("#rep").insertAdjacentHTML("afterbegin",informe(nombre,d));
+  const malas=d.herramientas.filter(h=>h.envenenada);
+  if(malas.length) malas.forEach(h=>alertaEscudo({nivel:"alta",titulo:`${nombre||d.servidor}: ${h.herramienta} envenenada`,
+    texto:`${h.hallazgos.map(x=>REGLA[x.regla]||x.regla).join(" · ")}. Frase: «${h.hallazgos[0].frase}». No la conectes a tu agente sin el escudo.`}));
+  else alertaEscudo({nivel:"ok",titulo:`${nombre||d.servidor}: sin órdenes escondidas`,texto:`${d.total} herramientas revisadas.`});
+  return d;
+}
+async function correr(boton,trabajo){
+  const t=boton.textContent;boton.disabled=true;boton.textContent="Verificando…";$("#err").hidden=true;
+  try{await trabajo()}catch(e){$("#err").textContent=e.message;$("#err").hidden=false}
+  finally{boton.disabled=false;boton.textContent=t}
+}
+document.querySelectorAll("[data-url]").forEach(b=>b.onclick=()=>{$("#url").value=b.dataset.url;$("#url").focus()});
+$("#f-url").addEventListener("submit",e=>{e.preventDefault();const u=$("#url").value.trim();
+  if(!/^https?:\/\//.test(u)){$("#err").textContent="La URL tiene que empezar con http:// o https://";$("#err").hidden=false;return}
+  correr(e.submitter||$("#f-url .btn:not(.ghost)"),()=>verificar(u))});
+$("#f-json").addEventListener("submit",e=>{e.preventDefault();
+  let cfg;try{cfg=JSON.parse($("#json").value)}catch{$("#err").textContent="El texto no es un JSON válido. Revisa comas y comillas.";$("#err").hidden=false;return}
+  const servidores=Object.entries(cfg.mcpServers||{});
+  const conUrl=servidores.filter(([,v])=>v&&v.url), conCmd=servidores.filter(([,v])=>v&&v.command);
+  if(!conUrl.length){$("#err").textContent="No encontré conectores con url dentro de mcpServers.";$("#err").hidden=false;return}
+  correr(e.submitter||$("#f-json .btn"),async()=>{
+    for(const [n,v] of conUrl){try{await verificar(v.url,n)}catch(err){alertaEscudo({nivel:"media",titulo:`${n}: no se pudo verificar`,texto:err.message})}}
+    if(conCmd.length)alertaEscudo({nivel:"media",titulo:`${conCmd.length} conector(es) con command`,texto:`No se ejecutaron por seguridad: ${conCmd.map(([n])=>n).join(", ")}.`});
+  })});
+</script>
+</body>
+</html>

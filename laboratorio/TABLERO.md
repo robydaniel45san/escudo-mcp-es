@@ -23,6 +23,18 @@ python demo/web.py --puerto 8770
 - **Indicadores:** eventos, bloqueos, secretos que salieron y **tiempo desde el inicio hasta el punto clave**.
 - **Evento estandarizado:** al tocar cualquier evento se ve su registro completo en JSON.
 
+## Ventanas de alerta
+Todas las páginas comparten `demo/web/alertas.js`:
+- **Crítica** (un secreto salió): ventana modal que hay que cerrar con "Entendido".
+- **Alta** (cuarentena, rug pull, robo bloqueado) y **media** (llamada bloqueada, herramienta envenenada usada): avisos apilados en la esquina que se cierran solos.
+- En el laboratorio solo salen para los eventos **nuevos** mientras está activado "Seguir la última sesión en vivo".
+
+## Probar conectores (`/conectores`)
+Pega la URL de un conector MCP por HTTP o un `mcp.json` completo. El Escudo se conecta, pide la lista de herramientas y revisa cada descripción, **sin ejecutar ninguna herramienta**. Los conectores con `command` no se ejecutan, por seguridad. También por terminal:
+```bash
+.venv-scanners/Scripts/python laboratorio/probar_conector.py http://127.0.0.1:9100/mcp
+```
+
 ## Registro estandarizado (`laboratorio/logs/eventos.jsonl`)
 Un solo archivo para el agente, el escudo y el conector. Cada línea usa campos de dos estándares:
 

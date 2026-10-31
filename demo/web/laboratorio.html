@@ -97,7 +97,7 @@ pre{margin:0;font-family:var(--mono);font-size:12px;line-height:16px;background:
 <div class="page">
   <nav>
     <span class="eyebrow">Equipo Arquisoft · Escudo MCP en español</span>
-    <div class="tabs"><a href="/">Simulación</a><a href="/laboratorio" aria-current="page">Laboratorio en vivo</a><a href="/escanear">Escanear una descripción</a></div>
+    <div class="tabs"><a href="/">Simulación</a><a href="/laboratorio" aria-current="page">Laboratorio en vivo</a><a href="/conectores">Probar conectores</a><a href="/escanear">Escanear una descripción</a></div>
   </nav>
   <header>
     <h1>¿En qué momento exacto se rompe?<br>¿Y en cuál lo frena el escudo?</h1>
@@ -151,11 +151,12 @@ pre{margin:0;font-family:var(--mono);font-size:12px;line-height:16px;background:
   </div>
 </div>
 
+<script src="/alertas.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const LANE={agente:1,escudo:2,conector:3};
-let estado=null, elegido=null, firma="";
+let estado=null, elegido=null, firma="", vistos=null;
 
 function hora(ts){return ts?ts.slice(11,23):""}
 function pintar(d){
@@ -199,13 +200,20 @@ function mostrarJson(id){
 }
 $("#tl").addEventListener("click",e=>{const b=e.target.closest(".box");if(b)mostrarJson(b.dataset.id)});
 
+// Ventanas de alerta: solo para eventos nuevos mientras se sigue la sesión en vivo.
+function avisar(d){
+  if(vistos===null){vistos=new Set(d.eventos.map(e=>e.span_id));return}
+  const nuevos=d.eventos.filter(e=>!vistos.has(e.span_id));
+  nuevos.forEach(e=>vistos.add(e.span_id));
+  if($("#vivo").checked) nuevos.forEach(e=>window.alertaDesdeEvento&&alertaDesdeEvento(e));
+}
 async function cargar(){
   try{
     const vivo=$("#vivo").checked, s=$("#sesion").value;
     const url="/api/lab/estado"+(!vivo&&s?"?sesion="+encodeURIComponent(s):"");
     const d=await (await fetch(url)).json();
     const nueva=JSON.stringify([d.sesion,d.eventos.length,d.servicios]);
-    if(nueva!==firma){firma=nueva;estado=d;pintar(d)}
+    if(nueva!==firma){firma=nueva;estado=d;pintar(d);avisar(d)}
     $("#err").hidden=true;
   }catch(e){$("#err").textContent="No se pudo leer el registro. Revisa que la demo siga corriendo.";$("#err").hidden=false}
 }
